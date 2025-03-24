@@ -1,0 +1,166 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongo:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=Quandz@@2083
+    networks:
+      - fasfood_network
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=Quandz@@2083
+    networks:
+      - fasfood_network
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    command: redis-server --requirepass Quandz@@2083
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - fasfood_network
+
+  discovery-service:
+    image: discovery-service:latest
+    build:
+      context: ./DiscoveryService
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - fasfood_network
+
+  gateway:
+    image: gateway:latest
+    build:
+      context: ./ApiGateway
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/logs:/app/logs
+    environment:
+    - EUREKA_URLS=http://discovery-service:8761/eureka/
+    networks:
+      - fasfood_network
+
+  iam:
+    image: iam:latest
+    build:
+      context: ./IamService
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_URLS=http://discovery-service:8761/eureka/
+      - REDIS_HOST=redis
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/FasFood?currentSchema=iam&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    networks:
+      - fasfood_network
+
+  storage:
+    image: storage:latest
+    build:
+      context: ./StorageService
+    restart: always
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./data/uploads:/app/data/uploads
+    environment:
+      - EUREKA_URLS=http://discovery-service:8761/eureka/
+      - REDIS_HOST=redis
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/FasFood?currentSchema=storage&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+    networks:
+      - fasfood_network
+
+#  keycloak:
+#    image: quay.io/keycloak/keycloak:latest
+#    container_name: keycloak
+#    command: >
+#      start-dev
+#    environment:
+#      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+#      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+#      - KC_DB=postgres
+#      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
+#      - KC_DB_USERNAME=iam
+#      - KC_DB_PASSWORD=iam123@
+#    ports:
+#      - "8888:8080"
+#    restart: always
+#    depends_on:
+#      - postgres
+#    networks:
+#      - fasfood_network
+
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-2
+    ports:
+      - "2182:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper-3
+    ports:
+      - "2183:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181"
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+
+networks:
+  fasfood_network:
+    driver: bridge

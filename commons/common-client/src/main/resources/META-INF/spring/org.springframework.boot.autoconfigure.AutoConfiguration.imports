@@ -1,0 +1,6 @@
+com.fasfood.client.config.FeignClientConfiguration
+com.fasfood.client.config.Resilience4JCircuitBreakerConfiguration
+com.fasfood.client.client.iam.IamClientFallback
+com.fasfood.client.client.keycloak.KeycloakClientFallback
+com.fasfood.client.client.storage.StorageClientFallback
+com.fasfood.client.config.security.impl.RemoteClientAuthenticationImpl

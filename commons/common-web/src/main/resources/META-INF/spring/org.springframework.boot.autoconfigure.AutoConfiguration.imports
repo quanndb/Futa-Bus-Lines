@@ -1,0 +1,15 @@
+com.fasfood.web.config.JwtProperties
+com.fasfood.web.config.WebConfiguration
+com.fasfood.web.config.StatsTracingFilter
+com.fasfood.web.exceptionHandler.ExceptionHandleAdvice
+com.fasfood.web.security.CustomAuthenticationFilter
+com.fasfood.web.security.ForbiddenTokenFilter
+com.fasfood.web.security.HttpSecurityConfiguration
+com.fasfood.web.security.RegexPermissionEvaluator
+com.fasfood.web.security.impl.RemoteAuthorityServiceImpl
+com.fasfood.web.security.impl.RemoteTokenCacheServiceImpl
+com.fasfood.web.support.CustomAuthenticationEntryPoint
+com.fasfood.web.support.HealthyCheckResource
+com.fasfood.web.support.IamServiceLocator
+
+

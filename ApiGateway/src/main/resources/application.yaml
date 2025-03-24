@@ -1,0 +1,102 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: ${SERVICE_PATH:/}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URLS:http://localhost:8761/eureka/}
+
+springdoc:
+  webjars:
+    prefix:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+        displayName: API Gateway Service
+      - url: iam/v3/api-docs
+        name: IAM Service
+        displayName: IAM Service
+      - url: storage/v3/api-docs
+        name: Storage Service
+        displayName: Storage Service
+      - url: restaurant/v3/api-docs
+        name: Restaurant Service
+        displayName: Restaurant Service
+      - url: product/v3/api-docs
+        name: Product Service
+        displayName: Product Service
+      - url: delivery/v3/api-docs
+        name: Delivery Service
+        displayName: Delivery Service
+      - url: payment/v3/api-docs
+        name: Payment Service
+        displayName: Payment Service
+
+spring:
+  application:
+    name: gateway
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: true
+      WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS: false
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            exposedHeaders: "*"
+            allowCredentials: true
+      routes:
+         - id: iam
+           uri: lb://iam
+           predicates:
+              - Path=/iam/**
+           filters:
+            - StripPrefix=1
+         - id: storage
+           uri: lb://storage
+           predicates:
+             - Path=/storage/**
+           filters:
+             - StripPrefix=1
+         - id: restaurant
+           uri: lb://restaurant
+           predicates:
+             - Path=/restaurant/**
+           filters:
+             - StripPrefix=1
+         - id: product
+           uri: lb://product
+           predicates:
+             - Path=/product/**
+           filters:
+             - StripPrefix=1
+         - id: delivery
+           uri: lb://delivery
+           predicates:
+             - Path=/delivery/**
+           filters:
+             - StripPrefix=1
+         - id: payment
+           uri: lb://payment
+           predicates:
+             - Path=/payment/**
+           filters:
+             - StripPrefix=1
+

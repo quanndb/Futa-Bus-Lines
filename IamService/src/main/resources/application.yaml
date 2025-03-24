@@ -1,0 +1,98 @@
+app:
+  version: v1
+  client:
+    keycloak: ${KEYCLOAK_URL:http://localhost:8888/realms/FasFood}
+    iam: ${IAM_URL:http://localhost:8081}
+    storage: ${STORAGE_URL:http://localhost:8082}
+  security:
+    enable-user: true
+    client:
+      id: iam-client
+      client-secret: FRN3Nc5Px0bugRHUrAs9w6DbnKjiHdzG
+    token:
+      access-token-lifetime: 1d
+      refresh-token-lifetime: 7d
+    keystore:
+      name: fasfood.jks
+      alias: fasfood
+      password: iam123@
+
+server:
+  port: 8081
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
+    include-stacktrace: never
+  servlet:
+    context-path: /
+
+spring:
+  profiles:
+    active: local
+  application:
+    name: iam
+  jpa:
+    database: postgresql
+    open-in-view: false
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/FasFood?currentSchema=iam&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true}
+    username: ${POSTGRES_USER:iam}
+    password: ${POSTGRES_PASSWORD:iam123@}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      enabled: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      compression:
+        request.enabled: true
+        response.enabled: true
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          jwk-set-uris:
+#            sso: ${JWK_SSO_URL:http://localhost:8888/realms/FasFood/protocol/openid-connect/certs}
+#            internal: ${JWK_INTERNAL_URL:http://localhost:8081/api/certificate/.well-known/jwks.json}
+  data:
+    redis:
+      password: Quandz@@2083
+      port: 6379
+      host: ${REDIS_HOST:localhost}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URLS:http://localhost:8761/eureka/}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
