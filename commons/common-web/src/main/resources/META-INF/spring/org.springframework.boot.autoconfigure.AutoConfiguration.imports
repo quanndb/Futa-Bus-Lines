@@ -11,5 +11,5 @@ com.fasfood.web.security.impl.RemoteTokenCacheServiceImpl
 com.fasfood.web.support.CustomAuthenticationEntryPoint
 com.fasfood.web.support.HealthyCheckResource
 com.fasfood.web.support.IamServiceLocator
-
+com.fasfood.web.support.DataCacher
 

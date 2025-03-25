@@ -132,7 +132,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
         Account found = this.accountRepository.getById(id);
         CreateOrUpdateAccountCmd cmd = this.iamCommandMapper.from(request);
         found.updateAccount(cmd);
-        this.userAuthoritiesCache.removeUserAuthorities(id);
+        this.userAuthoritiesCache.remove(id);
         if (Objects.nonNull(request.getPassword())) {
             found.changePassword(this.passwordEncoder.encode(cmd.getPassword()));
         }

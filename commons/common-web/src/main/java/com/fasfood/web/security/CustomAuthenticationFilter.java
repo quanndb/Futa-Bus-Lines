@@ -81,7 +81,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             if (!request.getRequestURI().endsWith("/token")
-                    && !request.getRequestURI().endsWith("/password")
+                    && !request.getRequestURI().contains("/action/")
                     && !TokenType.ACCESS_TOKEN.toString().equals(token.getClaim("type"))) {
                 this.logger.error("Must have access token");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401

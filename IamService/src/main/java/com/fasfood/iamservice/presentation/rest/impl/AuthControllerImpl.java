@@ -21,6 +21,17 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
+    public Response<LoginResponse> loginWithGoogle(String authCode) {
+        return Response.of(this.authService.loginWithGoogle(authCode));
+    }
+
+    @Override
+    public Response<Void> verifyMac() {
+        this.authService.verifyMac();
+        return Response.ok();
+    }
+
+    @Override
     public Response<Void> logout(LogoutRequest loginRequest) {
         this.authService.logout(loginRequest);
         return Response.ok();

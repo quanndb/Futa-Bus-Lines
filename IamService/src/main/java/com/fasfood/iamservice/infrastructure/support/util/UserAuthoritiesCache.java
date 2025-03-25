@@ -1,44 +1,38 @@
 package com.fasfood.iamservice.infrastructure.support.util;
 
 import com.fasfood.common.UserAuthority;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasfood.util.StrUtils;
+import com.fasfood.web.support.Cacher;
+import com.fasfood.web.support.DataCacher;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 @Component
-public class UserAuthoritiesCache {
-    private final RedisTemplate<String, String> redisTemplate;
+@RequiredArgsConstructor
+public class UserAuthoritiesCache implements Cacher<UUID, UserAuthority> {
     public static final String AUTHORITIES_KEY = "authorities";
-    private final ObjectMapper objectMapper;
+    private final DataCacher dataCacher;
 
-    public void putUserAuthorities(UserAuthority userAuthority) {
-        try {
-            String json = this.objectMapper.writeValueAsString(userAuthority);
-            this.redisTemplate.opsForValue().set(String.join(":", AUTHORITIES_KEY, userAuthority.getUserId().toString()), json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error serializing UserAuthority", e);
-        }
+    @Override
+    public void put(UUID key, UserAuthority value, Duration duration) {
+        this.dataCacher.put(StrUtils.joinKey(AUTHORITIES_KEY, key.toString()), value, null);
     }
 
-    public void removeUserAuthorities(UUID userId) {
-        this.redisTemplate.delete(String.join(":", AUTHORITIES_KEY, userId.toString()));
+    @Override
+    public UserAuthority get(UUID key) {
+        return this.dataCacher.get(StrUtils.joinKey(AUTHORITIES_KEY, key.toString()), UserAuthority.class);
     }
 
-    public UserAuthority getUserAuthorities(UUID userId) {
-        try {
-            String json = this.redisTemplate.opsForValue().get(String.join(":", AUTHORITIES_KEY, userId.toString()));
-            return json != null ? this.objectMapper.readValue(json, UserAuthority.class) : null;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error deserializing UserAuthority", e);
-        }
+    @Override
+    public void remove(UUID key) {
+        this.dataCacher.remove(StrUtils.joinKey(AUTHORITIES_KEY, key.toString()));
     }
 
-    public boolean hasUserAuthorities(UUID userId) {
-        return Boolean.TRUE.equals(this.redisTemplate.hasKey(String.join(":", AUTHORITIES_KEY, userId.toString())));
+    @Override
+    public boolean hasKey(UUID key) {
+        return this.dataCacher.hasKey(StrUtils.joinKey(AUTHORITIES_KEY, key.toString()));
     }
 }

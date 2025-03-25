@@ -12,10 +12,18 @@ app:
     token:
       access-token-lifetime: 1d
       refresh-token-lifetime: 7d
+      action-token-lifetime: 5m
     keystore:
       name: fasfood.jks
       alias: fasfood
       password: iam123@
+    provider:
+      google:
+        verify-url: https://oauth2.googleapis.com
+        user-url: https://www.googleapis.com/oauth2/v3
+        client-id: ${GOOGLE_CLIENT_ID:[[GOOGLE_CLIENT_ID]]}
+        client-secret: ${GOOGLE_CLIENT_SECRET:[[GOOGLE_CLIENT_SECRET]]}
+        redirect-uri: ${GOOGLE_REDIRECT_URL:[[GOOGLE_REDIRECT_URL]]}
 
 server:
   port: 8081
@@ -60,13 +68,13 @@ spring:
       compression:
         request.enabled: true
         response.enabled: true
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          jwk-set-uris:
-#            sso: ${JWK_SSO_URL:http://localhost:8888/realms/FasFood/protocol/openid-connect/certs}
-#            internal: ${JWK_INTERNAL_URL:http://localhost:8081/api/certificate/.well-known/jwks.json}
+  #  security:
+  #    oauth2:
+  #      resourceserver:
+  #        jwt:
+  #          jwk-set-uris:
+  #            sso: ${JWK_SSO_URL:http://localhost:8888/realms/FasFood/protocol/openid-connect/certs}
+  #            internal: ${JWK_INTERNAL_URL:http://localhost:8081/api/certificate/.well-known/jwks.json}
   data:
     redis:
       password: Quandz@@2083

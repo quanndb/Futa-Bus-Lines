@@ -73,6 +73,12 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
+    public String actionToken(UUID uid, String email) {
+        return this.accessTokenFactory(uid, email,
+                TimeConverter.convertToMilliseconds(this.lifeTimeProperties.getActionTokenLifetime()),
+                TokenType.ACTION_TOKEN);
+    }
+
     private String accessTokenFactory(UUID uid, String email, long lifeTime, TokenType type) {
         // build token
         return Jwts.builder()

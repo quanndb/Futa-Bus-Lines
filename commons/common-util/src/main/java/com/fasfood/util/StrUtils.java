@@ -448,4 +448,11 @@ public final class StrUtils {
             return string;
         }
     }
+
+    public static String joinKey(String prefix, String... suffixes) {
+        String[] parts = new String[suffixes.length + 1];
+        parts[0] = prefix;
+        System.arraycopy(suffixes, 0, parts, 1, suffixes.length);
+        return String.join(":", parts);
+    }
 }

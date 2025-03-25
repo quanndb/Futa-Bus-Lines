@@ -22,8 +22,8 @@ public class AuthorityServiceImpl implements AuthorityService {
 
     @Override
     public UserAuthority getUserAuthority(UUID userId) {
-        if (this.userAuthoritiesCache.hasUserAuthorities(userId)){
-            return this.userAuthoritiesCache.getUserAuthorities(userId);
+        if (this.userAuthoritiesCache.hasKey(userId)){
+            return this.userAuthoritiesCache.get(userId);
         }
         CreateOrUpdateAccountResponse response = this.accountQueryService.getById(userId);
         boolean isRoot = response.getRoles().stream().anyMatch(AccountRoleResponse::getIsRoot);
@@ -32,7 +32,7 @@ public class AuthorityServiceImpl implements AuthorityService {
                 .grantedPermissions(response.getGrantedPermissions())
                 .isRoot(isRoot)
                 .build();
-        this.userAuthoritiesCache.putUserAuthorities(res);
+        this.userAuthoritiesCache.put(res.getUserId(), res);
         return res;
     }
 

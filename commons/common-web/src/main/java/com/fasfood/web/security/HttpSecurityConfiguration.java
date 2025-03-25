@@ -71,6 +71,7 @@ public class HttpSecurityConfiguration {
                                 "/api/public/**",
                                 "/api/certificate/.well-known/jwks.json",
                                 "/api/*/auth/login",
+                                "/api/*/auth/provider/**",
                                 "/api/*/accounts/register",
                                 "/swagger-*/**",
                                 "/v2/api-docs",

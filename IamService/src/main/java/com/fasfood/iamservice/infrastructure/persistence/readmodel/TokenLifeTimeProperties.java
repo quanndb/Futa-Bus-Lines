@@ -10,4 +10,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class TokenLifeTimeProperties {
     private String accessTokenLifetime;
     private String refreshTokenLifetime;
+    private String actionTokenLifetime;
 }
