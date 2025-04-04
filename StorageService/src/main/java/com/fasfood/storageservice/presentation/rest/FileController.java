@@ -38,7 +38,6 @@ public interface FileController {
 
     @GetMapping("/{fileId}")
     @Operation(summary = "Download file")
-    @PreAuthorize("hasPermission(null, 'account.view')")
     ResponseEntity<byte[]> download(@PathVariable UUID fileId,
                                     @RequestParam(required = false) Integer width,
                                     @RequestParam(required = false) Integer height,

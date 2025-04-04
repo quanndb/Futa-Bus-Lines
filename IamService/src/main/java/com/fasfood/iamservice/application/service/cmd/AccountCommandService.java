@@ -8,6 +8,7 @@ import com.fasfood.iamservice.application.dto.request.UpdateAccountRequest;
 import com.fasfood.iamservice.application.dto.request.UpdateProfileRequest;
 import com.fasfood.iamservice.application.dto.response.CreateOrUpdateAccountResponse;
 import com.fasfood.iamservice.application.dto.response.UpdateAccountResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public interface AccountCommandService {
 
     void changePassword(ChangePasswordRequest request);
 
-    void forgotPassword();
+    void forgotPassword(String email) throws JsonProcessingException;
 
     void setPassword(SetPasswordRequest request);
 

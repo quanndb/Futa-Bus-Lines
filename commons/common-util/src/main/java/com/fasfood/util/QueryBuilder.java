@@ -75,7 +75,7 @@ public class QueryBuilder {
     }
 
     public static QueryBuilder selectCountFrom(String tableName, String aliasTableName) {
-        return select(List.of("COUNT("+aliasTableName+".id)"), tableName, aliasTableName);
+        return select(List.of("COUNT(" + aliasTableName + ".id)"), tableName, aliasTableName);
     }
 
     // Add JOIN clause
@@ -167,7 +167,8 @@ public class QueryBuilder {
             if (i > 0) {
                 condition.append(", ' ', ");
             }
-            condition.append("COALESCE(CAST(").append(columns.get(i)).append(" AS String), '')"); // Thêm COALESCE để thay thế NULL
+            condition.append("COALESCE(CAST(").append(this.aliasTableName).append(".")
+                    .append(columns.get(i)).append(" AS String), '')"); // Thêm COALESCE để thay thế NULL
         }
         condition.append(")");
 
@@ -183,7 +184,7 @@ public class QueryBuilder {
         this.parameters.put("keyword", value.trim().toLowerCase());
 
         // Append vào WHERE clause
-        this.appendWhereClause(condition.toString());
+        this.query.append(" WHERE ").append(condition);
         return this;
     }
 

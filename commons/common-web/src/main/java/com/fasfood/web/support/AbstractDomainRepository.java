@@ -48,7 +48,7 @@ public abstract class AbstractDomainRepository<D, E, I> implements DomainReposit
 
     protected D enrich(D d) {
         List<D> ds = List.of(d);
-        return (D)this.enrichList(ds).getFirst();
+        return (D) this.enrichList(ds).getFirst();
     }
 
     protected List<D> enrichList(List<D> ds) {

@@ -45,7 +45,17 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -107,6 +117,12 @@
         <dependency>
             <groupId>com.fasfood</groupId>
             <artifactId>common-client</artifactId>
+            <version>${common.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasfood</groupId>
+            <artifactId>common-persistence</artifactId>
             <version>${common.version}</version>
             <scope>compile</scope>
         </dependency>

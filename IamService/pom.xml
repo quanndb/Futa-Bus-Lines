@@ -146,23 +146,23 @@
         </plugins>
     </build>
 
-    <repositories>
-        <!-- Maven Central -->
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-        </repository>
+<!--    <repositories>-->
+<!--        &lt;!&ndash; Maven Central &ndash;&gt;-->
+<!--        <repository>-->
+<!--            <id>central</id>-->
+<!--            <url>https://repo.maven.apache.org/maven2</url>-->
+<!--        </repository>-->
 
-        <!-- GitHub Packages -->
-        <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/quanndb/fasfood</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+<!--        &lt;!&ndash; GitHub Packages &ndash;&gt;-->
+<!--        <repository>-->
+<!--            <id>github</id>-->
+<!--            <url>https://maven.pkg.github.com/quanndb/fasfood</url>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 </project>

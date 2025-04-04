@@ -1,7 +1,6 @@
-package com.fasfood.client.client.keycloak;
+package com.fasfood.client.client.notification;
 
-import com.fasfood.common.dto.request.ClientRequest;
-import com.fasfood.common.dto.response.ClientResponse;
+import com.fasfood.common.dto.request.SendEmailRequest;
 import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.error.ServiceUnavailableError;
 import com.fasfood.common.exception.ForwardInnerAlertException;
@@ -14,14 +13,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
-public class KeycloakClientFallback implements FallbackFactory<KeycloakClient> {
-
+public class NotificationClientFallback implements FallbackFactory<NotificationClient> {
     @Override
-    public KeycloakClient create(Throwable cause) {
+    public NotificationClient create(Throwable cause) {
         return new FallbackWithFactory(cause);
     }
 
-    static class FallbackWithFactory implements KeycloakClient {
+    static class FallbackWithFactory implements NotificationClient {
         private static final Logger log = LoggerFactory.getLogger(FallbackWithFactory.class);
         private final Throwable cause;
 
@@ -30,8 +28,8 @@ public class KeycloakClientFallback implements FallbackFactory<KeycloakClient> {
         }
 
         @Override
-        public Response<ClientResponse> getClientToken(ClientRequest clientRequest) {
-            log.error("Get client token", this.cause);
+        public Response<Void> send(SendEmailRequest sendEmailRequest) {
+            log.error("Send email fail cause: ", this.cause);
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
         }

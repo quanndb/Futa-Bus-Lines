@@ -33,15 +33,15 @@ public interface StorageClient {
             @RequestParam("sharing") Boolean sharing
     ) throws IOException;
 
-    @GetMapping("/api/v1/files/{fileId}")
+    @GetMapping(value = "/api/v1/files/{fileId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<byte[]> download(@PathVariable UUID fileId,
                                     @RequestParam(required = false) Integer width,
                                     @RequestParam(required = false) Integer height,
                                     @RequestParam(required = false) Double ratio) throws IOException;
 
-    @GetMapping("/api/v1/files/{fileId}/info")
+    @GetMapping(value = "/api/v1/files/{fileId}/info", consumes = MediaType.APPLICATION_JSON_VALUE)
     Response<FileResponse> getFileInfo(@PathVariable UUID fileId);
 
-    @DeleteMapping("/api/v1/files/{fileId}")
+    @DeleteMapping(value = "/api/v1/files/{fileId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     Response<Void> deleteFile(@PathVariable UUID fileId);
 }

@@ -28,5 +28,17 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasfood</groupId>
+            <artifactId>common-model</artifactId>
+            <version>${common.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasfood</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${common.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

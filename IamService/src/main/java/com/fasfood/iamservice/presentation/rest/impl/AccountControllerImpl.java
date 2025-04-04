@@ -16,6 +16,7 @@ import com.fasfood.iamservice.application.service.cmd.AccountCommandService;
 import com.fasfood.iamservice.application.service.query.AccountQueryService;
 import com.fasfood.iamservice.presentation.rest.AccountController;
 import com.fasfood.web.security.AuthorityService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,8 +45,8 @@ public class AccountControllerImpl implements AccountController {
     }
 
     @Override
-    public Response<Void> forgotPassword() {
-        this.accountCommandService.forgotPassword();
+    public Response<Void> forgotPassword(String email) throws JsonProcessingException {
+        this.accountCommandService.forgotPassword(email);
         return Response.ok();
     }
 

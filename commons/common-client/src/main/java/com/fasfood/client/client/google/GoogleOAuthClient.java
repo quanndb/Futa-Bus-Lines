@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(
-        url = "${app.security.provider.google.verify-url}",
+        url = "${app.security.provider.google.verify-url:}",
         name = "google-oauth",
         contextId = "google-oauth",
         configuration = {FeignClientConfiguration.class},

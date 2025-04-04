@@ -73,12 +73,14 @@ public class HttpSecurityConfiguration {
                                 "/api/*/auth/login",
                                 "/api/*/auth/provider/**",
                                 "/api/*/accounts/register",
+                                "/api/*/accounts/forgot-password",
                                 "/swagger-*/**",
                                 "/v2/api-docs",
                                 "/v3/api-docs/**",
                                 "/error",
                                 "/actuator/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/files/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 );
         http.oauth2ResourceServer((oauth2) -> oauth2

@@ -1,14 +1,11 @@
 app:
   version: v1
-  client:
-    keycloak: ${KEYCLOAK_URL:http://localhost:8888/realms/FasFood}
-    iam: ${IAM_URL:http://localhost:8081}
-    storage: ${STORAGE_URL:http://localhost:8082}
   security:
     enable-user: true
     client:
-      id: storage-client
+      client-id: storage-client
       client-secret: tJhX5JLn1r1RwGEOTO84XT9iFVh5VaTR
+      grant-type: client_credentials
 
 server:
   port: 8082
@@ -19,6 +16,14 @@ server:
     include-stacktrace: never
   servlet:
     context-path: /
+  undertow:
+    accesslog:
+      enabled: true
+    buffer-size: 1024
+    threads:
+      io: 8
+      worker: 256
+    direct-buffers: true
 
 spring:
   profiles:
@@ -53,20 +58,20 @@ spring:
       compression:
         request.enabled: true
         response.enabled: true
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          jwk-set-uris:
-#            internal: ${JWK_INTERNAL_URL:http://iam/api/certificate/.well-known/jwks.json}
-#            sso: ${JWK_SSO_URL:http://localhost:8888/realms/FasFood/protocol/openid-connect/certs}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uris:
+            internal: ${JWK_INTERNAL_URL:http://localhost:8081/api/certificate/.well-known/jwks.json}
+            sso: ${JWK_SSO_URL:http://localhost:8888/realms/FasFood/protocol/openid-connect/certs}
   data:
     redis:
       password: Quandz@@2083
       port: 6379
       host: ${REDIS_HOST:localhost}
   servlet:
-     multipart:
+    multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 50MB

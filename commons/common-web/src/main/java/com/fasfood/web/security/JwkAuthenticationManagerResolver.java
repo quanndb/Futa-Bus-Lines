@@ -5,6 +5,7 @@ import com.fasfood.web.config.JwtProperties;
 import com.nimbusds.jwt.JWTParser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
+@EnableConfigurationProperties(JwtProperties.class)
 public class JwkAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
     private final Map<String, String> issuers;
     private final Map<String, AuthenticationManager> authenticationManagers = new HashMap<>();

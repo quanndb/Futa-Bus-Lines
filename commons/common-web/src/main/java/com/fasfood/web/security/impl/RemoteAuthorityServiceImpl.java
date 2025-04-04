@@ -16,8 +16,7 @@ public class RemoteAuthorityServiceImpl implements AuthorityService {
 
     @Override
     public UserAuthority getUserAuthority(UUID userId) {
-        UserAuthority userAuthority = this.iamClient.getUserAuthority(userId).getData();
-        return userAuthority;
+        return this.iamClient.getUserAuthority(userId).getData();
     }
 
     @Override

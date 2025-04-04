@@ -1,6 +1,11 @@
 package com.fasfood.iamservice.application.service.cmd.impl;
 
+import com.fasfood.client.client.notification.NotificationClient;
 import com.fasfood.client.client.storage.StorageClient;
+import com.fasfood.common.UserAuthentication;
+import com.fasfood.common.dto.request.SendEmailRequest;
+import com.fasfood.common.enums.TokenType;
+import com.fasfood.common.error.AuthenticationError;
 import com.fasfood.common.exception.ResponseException;
 import com.fasfood.iamservice.application.dto.mapper.AccountDTOMapper;
 import com.fasfood.iamservice.application.dto.request.ChangePasswordRequest;
@@ -16,14 +21,17 @@ import com.fasfood.iamservice.application.service.cmd.AccountCommandService;
 import com.fasfood.iamservice.domain.Account;
 import com.fasfood.iamservice.domain.cmd.CreateOrUpdateAccountCmd;
 import com.fasfood.iamservice.domain.repository.AccountRepository;
+import com.fasfood.iamservice.infrastructure.persistence.entity.AccountEntity;
 import com.fasfood.iamservice.infrastructure.persistence.entity.RoleEntity;
 import com.fasfood.iamservice.infrastructure.persistence.repository.AccountEntityRepository;
 import com.fasfood.iamservice.infrastructure.persistence.repository.RoleEntityRepository;
 import com.fasfood.iamservice.infrastructure.support.exception.BadRequestError;
 import com.fasfood.iamservice.infrastructure.support.exception.NotFoundError;
+import com.fasfood.iamservice.infrastructure.support.util.TokenProvider;
 import com.fasfood.iamservice.infrastructure.support.util.UserAuthoritiesCache;
 import com.fasfood.util.FileStorageUtil;
 import com.fasfood.web.support.SecurityUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -53,6 +62,8 @@ public class AccountCommandServiceImpl implements AccountCommandService {
     private final AccountDTOMapper accountDTOMapper;
     private final PasswordEncoder passwordEncoder;
     private final StorageClient storageClient;
+    private final NotificationClient notificationClient;
+    private final TokenProvider tokenProvider;
 
     @Override
     @Transactional
@@ -78,13 +89,29 @@ public class AccountCommandServiceImpl implements AccountCommandService {
     }
 
     @Override
-    public void forgotPassword() {
-        // TODO: send action token
+    public void forgotPassword(String email) throws JsonProcessingException {
+        AccountEntity found = this.accountEntityRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseException(NotFoundError.ACCOUNT_NOTFOUND));
+        var res = this.notificationClient.send(SendEmailRequest.builder()
+                .to(List.of(found.getEmail()))
+                .subject("Reset password")
+                .templateCode("TP-M91KSQ7A06B")
+                .variables(Map.of("name", found.getFullName(),
+                        "resetLink", this.tokenProvider.actionToken(found.getId(), found.getEmail())))
+                .build());
+        if(!res.isSuccess()){
+            throw res.getException();
+        }
     }
 
     @Override
     @Transactional
     public void setPassword(SetPasswordRequest request) {
+        UserAuthentication userAuthentication = SecurityUtils.getUserAuthentication()
+                .orElseThrow(() -> new ResponseException(AuthenticationError.UNAUTHORISED));
+        if (!Objects.equals(userAuthentication.getTokenType(), TokenType.ACTION_TOKEN)) {
+            throw new ResponseException(BadRequestError.MUST_HAS_ACTION_TOKEN);
+        }
         Account found = this.accountRepository.getById(SecurityUtils.getUserId());
         found.changePassword(this.passwordEncoder.encode(request.getNewPassword()));
         this.accountRepository.saveAll(List.of(found));
@@ -105,9 +132,11 @@ public class AccountCommandServiceImpl implements AccountCommandService {
         if (!FileStorageUtil.getFileType(image).startsWith("image/")) {
             throw new ResponseException(BadRequestError.INVALID_AVATAR);
         }
-        ;
         Account found = this.accountRepository.getById(SecurityUtils.getUserId());
         var files = this.storageClient.upload(List.of(image), true);
+        if(!files.isSuccess()){
+            throw files.getException();
+        }
         found.updateAvatar(files.getData().getFirst().getPath());
         this.accountRepository.saveAll(List.of(found));
         return this.accountDTOMapper.from(found);

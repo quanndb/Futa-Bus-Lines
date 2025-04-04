@@ -27,7 +27,7 @@ public enum BadRequestError implements ResponseError {
     PERMISSION_EXISTED(4010019, "Permission already existed: {0}"),
     EMAIL_EXISTED(4010020, "Email already existed: {0}"),
     INVALID_AVATAR(4010021, "Invalid avatar"),
-    INVALID_MAC_ADDRESS(4010022, "Invalid mac address, please check your email"),
+    INVALID_MAC_ADDRESS(4010022, "Invalid mac address: {0}, please check your email"),
     MUST_HAS_ACTION_TOKEN(4010023, "Must have action token"),
     ;
 

@@ -12,6 +12,7 @@ import com.fasfood.iamservice.application.dto.request.UpdateAccountRequest;
 import com.fasfood.iamservice.application.dto.request.UpdateProfileRequest;
 import com.fasfood.iamservice.application.dto.response.CreateOrUpdateAccountResponse;
 import com.fasfood.iamservice.application.dto.response.UpdateAccountResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,11 +46,11 @@ public interface AccountController {
     Response<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request);
 
     @Operation(summary = "Forgot password")
-    @PostMapping("/me/forgot-password")
-    Response<Void> forgotPassword();
+    @PostMapping("/forgot-password")
+    Response<Void> forgotPassword(@RequestParam String email) throws JsonProcessingException;
 
     @Operation(summary = "Forgot password")
-    @PostMapping("/me/password-verification")
+    @PostMapping("/action/password-verification")
     Response<Void> verifyPassword(@RequestBody @Valid SetPasswordRequest request);
 
     @Operation(summary = "Update profile")

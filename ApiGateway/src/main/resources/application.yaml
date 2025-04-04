@@ -28,15 +28,15 @@ springdoc:
       - url: storage/v3/api-docs
         name: Storage Service
         displayName: Storage Service
-      - url: restaurant/v3/api-docs
-        name: Restaurant Service
-        displayName: Restaurant Service
-      - url: product/v3/api-docs
-        name: Product Service
-        displayName: Product Service
-      - url: delivery/v3/api-docs
-        name: Delivery Service
-        displayName: Delivery Service
+      - url: trip/v3/api-docs
+        name: Trip Service
+        displayName: Trip Service
+      - url: booking/v3/api-docs
+        name: Booking Service
+        displayName: Booking Service
+      - url: notification/v3/api-docs
+        name: Notification Service
+        displayName: Notification Service
       - url: payment/v3/api-docs
         name: Payment Service
         displayName: Payment Service
@@ -75,22 +75,22 @@ spring:
              - Path=/storage/**
            filters:
              - StripPrefix=1
-         - id: restaurant
-           uri: lb://restaurant
+         - id: trip
+           uri: lb://trip
            predicates:
-             - Path=/restaurant/**
+             - Path=/trip/**
            filters:
              - StripPrefix=1
-         - id: product
-           uri: lb://product
+         - id: booking
+           uri: lb://booking
            predicates:
-             - Path=/product/**
+             - Path=/booking/**
            filters:
              - StripPrefix=1
-         - id: delivery
-           uri: lb://delivery
+         - id: notification
+           uri: lb://notification
            predicates:
-             - Path=/delivery/**
+             - Path=/notification/**
            filters:
              - StripPrefix=1
          - id: payment

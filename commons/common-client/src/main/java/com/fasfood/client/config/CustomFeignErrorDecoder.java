@@ -36,7 +36,7 @@ public class CustomFeignErrorDecoder implements ErrorDecoder {
             return new ForwardInnerAlertException(errorResponse);
 
         } catch (IOException e) {
-            log.error("Feign decode error", e);
+            log.error("Feign decode error");
             return this.defaultErrorDecoder.decode(methodKey, response);
         }
     }

@@ -1,6 +1,8 @@
 package com.fasfood.client.client.iam;
 
 import com.fasfood.common.UserAuthority;
+import com.fasfood.common.dto.request.ClientRequest;
+import com.fasfood.common.dto.response.ClientResponse;
 import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.error.ServiceUnavailableError;
 import com.fasfood.common.exception.ForwardInnerAlertException;
@@ -33,6 +35,13 @@ public class IamClientFallback implements FallbackFactory<IamClient> {
         @Override
         public Response<UserAuthority> getUserAuthority(UUID userId) {
             log.error("Get user authorities", this.cause);
+            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
+                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
+
+        @Override
+        public Response<ClientResponse> getClientToken(ClientRequest clientRequest) {
+            log.error("Get client token fail cause:", this.cause);
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
         }

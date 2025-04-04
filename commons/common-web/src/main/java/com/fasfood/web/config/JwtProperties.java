@@ -1,22 +1,18 @@
 package com.fasfood.web.config;
 
-import com.fasfood.web.support.IamServiceLocator;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 @Component
+@Getter
+@Setter
+@ConfigurationProperties(
+        prefix = "spring.security.oauth2.resourceserver.jwt"
+)
 public class JwtProperties {
-
-    private final IamServiceLocator iamServiceLocator;
-
-    public JwtProperties(IamServiceLocator iamServiceLocator) {
-        this.iamServiceLocator = iamServiceLocator;
-    }
-
-    public Map<String, String> getJwkSetUris() {
-        return Map.of(
-                "sso", "http://localhost:8888/realms/FasFood/protocol/openid-connect/certs",
-                "internal", iamServiceLocator.getIamServiceUrl() + "/api/certificate/.well-known/jwks.json"
-        );
-    }
+    private Map<String, String> jwkSetUris;
 }

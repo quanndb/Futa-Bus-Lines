@@ -12,6 +12,12 @@ public enum BadRequestError implements ResponseError {
     FILE_SIZE_EXCEEDED(40000006, "File size exceeds the limit"),
     RECORD_IS_BEING_UPDATED(40000012, "The record is being updated. Please wait a minute"),
     INVALID_EMAIL(40000007, "Invalid email address"),
+    //email
+    TEMPLATE_CODE_REQUIRED(4000001, "Template code is required"),
+    SENDER_REQUIRED(4000002, "Sender is required"),
+    RECIPIENTS_REQUIRED(4000003, "Recipients are required"),
+    SUBJECT_REQUIRED(4000004, "Subject is required"),
+    BODY_REQUIRED(4000005, "Body is required"),
     ;
 
     private final Integer code;
