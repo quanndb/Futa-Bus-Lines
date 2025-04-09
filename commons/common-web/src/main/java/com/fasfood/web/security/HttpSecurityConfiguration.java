@@ -81,6 +81,9 @@ public class HttpSecurityConfiguration {
                                 "/actuator/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/files/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/routes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/places/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/trips/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 );
         http.oauth2ResourceServer((oauth2) -> oauth2

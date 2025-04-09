@@ -59,6 +59,9 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest) throws JsonProcessingException {
         AccountEntity found = this.accountEntityRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseException(BadRequestError.EMAIL_NOT_FOUND));
+        if (!AccountStatus.ACTIVE.equals(found.getStatus())) {
+            throw new ResponseException(BadRequestError.ACCOUNT_NOT_ACTIVE);
+        }
         if (!this.passwordEncoder.matches(loginRequest.getPassword(), found.getPassword())) {
             throw new ResponseException(BadRequestError.WRONG_PASSWORD);
         }
@@ -116,8 +119,12 @@ public class AuthService {
     }
 
     private LoginResponse processLogin(AccountEntity account) throws JsonProcessingException {
+        if (!AccountStatus.ACTIVE.equals(account.getStatus())) {
+            throw new ResponseException(BadRequestError.ACCOUNT_NOT_ACTIVE);
+        }
         // MAC check
         if (!this.macCache.hasKey(StrUtils.joinKey(account.getId().toString(), MacAddressUtil.getMacAddress()))) {
+            log.error(MacAddressUtil.getMacAddress());
             var res = this.notificationClient.send(SendEmailRequest.builder()
                     .to(List.of(account.getEmail()))
                     .subject("Reset password")
@@ -126,7 +133,7 @@ public class AuthService {
                             "address", Objects.requireNonNull(MacAddressUtil.getMacAddress()),
                             "resetLink", this.tokenProvider.actionToken(account.getId(), account.getEmail())))
                     .build());
-            if(!res.isSuccess()){
+            if (!res.isSuccess()) {
                 throw res.getException();
             }
             throw new ResponseException(BadRequestError.INVALID_MAC_ADDRESS, MacAddressUtil.getMacAddress());

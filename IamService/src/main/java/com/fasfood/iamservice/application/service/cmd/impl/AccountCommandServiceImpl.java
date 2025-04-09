@@ -4,6 +4,7 @@ import com.fasfood.client.client.notification.NotificationClient;
 import com.fasfood.client.client.storage.StorageClient;
 import com.fasfood.common.UserAuthentication;
 import com.fasfood.common.dto.request.SendEmailRequest;
+import com.fasfood.common.enums.AccountStatus;
 import com.fasfood.common.enums.TokenType;
 import com.fasfood.common.error.AuthenticationError;
 import com.fasfood.common.exception.ResponseException;
@@ -89,6 +90,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
     }
 
     @Override
+    @Transactional
     public void forgotPassword(String email) throws JsonProcessingException {
         AccountEntity found = this.accountEntityRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseException(NotFoundError.ACCOUNT_NOTFOUND));
@@ -128,6 +130,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
     }
 
     @Override
+    @Transactional
     public UpdateAccountResponse updateAvatar(MultipartFile image) throws IOException {
         if (!FileStorageUtil.getFileType(image).startsWith("image/")) {
             throw new ResponseException(BadRequestError.INVALID_AVATAR);
@@ -167,6 +170,14 @@ public class AccountCommandServiceImpl implements AccountCommandService {
         }
         this.accountRepository.saveAll(List.of(found));
         return this.accountDTOMapper.domainToDTO(found);
+    }
+
+    @Override
+    @Transactional
+    public void setActive(UUID id, Boolean active) {
+        Account found = this.accountRepository.getById(id);
+        found.setUserStatus(active ? AccountStatus.ACTIVE : AccountStatus.INACTIVE);
+        this.accountRepository.saveAll(List.of(found));
     }
 
     @Override

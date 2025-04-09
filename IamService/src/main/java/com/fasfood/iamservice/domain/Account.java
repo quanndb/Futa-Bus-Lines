@@ -83,6 +83,10 @@ public class Account extends AuditableDomain {
         this.deleted = Boolean.TRUE;
     }
 
+    public void setUserStatus(AccountStatus status) {
+        this.status = status;
+    }
+
     // utils
     private Set<AccountRole> createRoles(Set<UUID> roleIds) {
         if (CollectionUtils.isEmpty(roleIds)) {

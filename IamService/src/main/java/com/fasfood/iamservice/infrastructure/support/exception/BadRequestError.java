@@ -29,6 +29,7 @@ public enum BadRequestError implements ResponseError {
     INVALID_AVATAR(4010021, "Invalid avatar"),
     INVALID_MAC_ADDRESS(4010022, "Invalid mac address: {0}, please check your email"),
     MUST_HAS_ACTION_TOKEN(4010023, "Must have action token"),
+    ACCOUNT_NOT_ACTIVE(4010024, "Account is not active"),
     ;
 
     private final Integer code;

@@ -57,11 +57,16 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOriginPatterns: "*"
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://127.0.0.1:5500"
+              - "https://yourfrontend.com"
             allowedMethods: "*"
             allowedHeaders: "*"
             exposedHeaders: "*"
             allowCredentials: true
+      default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
       routes:
          - id: iam
            uri: lb://iam

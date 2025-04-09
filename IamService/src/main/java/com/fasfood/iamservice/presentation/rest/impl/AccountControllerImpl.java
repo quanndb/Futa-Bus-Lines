@@ -77,6 +77,12 @@ public class AccountControllerImpl implements AccountController {
     }
 
     @Override
+    public Response<Void> setActive(UUID id, Boolean active) {
+        this.accountCommandService.setActive(id, active);
+        return Response.ok();
+    }
+
+    @Override
     public Response<Void> delete(UUID id) {
         this.accountCommandService.delete(id);
         return Response.ok();

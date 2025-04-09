@@ -29,13 +29,13 @@ public class QueryBuilder {
     private final Map<String, Object> parameters;
     private Integer page = 1;   // Default page is 1
     private Integer size = 10;  // Default size is 10
-    private String aliasTableName = "default_alias";
+    private String aliasTableName = "";
     private static final String ALIAS_LIST = "list_";
 
     private QueryBuilder(String baseQuery, String aliasTableName) {
         this.query = new StringBuilder(baseQuery);
         if (aliasTableName != null) {
-            this.aliasTableName = aliasTableName;
+            this.aliasTableName = String.format("%s.", aliasTableName);
         }
         this.parameters = new HashMap<>();
     }
@@ -84,7 +84,7 @@ public class QueryBuilder {
             throw new NullPointerException("tableName or aliasTableName or onLeftTableName or onRightTableName is null");
         }
         this.query.append(" ").append(joinType.getValue()).append(" ").append(tableName).append(" ").append(aliasTableName)
-                .append(" ON ").append(this.aliasTableName).append(".").append(onLeftTableName).append(" = ")
+                .append(" ON ").append(this.aliasTableName).append(onLeftTableName).append(" = ")
                 .append(aliasTableName).append(".").append(onRightTableName);
         return this;
     }
@@ -142,7 +142,7 @@ public class QueryBuilder {
 
     public QueryBuilder whereTime(String column, Object startValue, Object endValue) {
         if (startValue != null && endValue != null) {
-            String condition = this.aliasTableName + "." + column + " BETWEEN :" + column + "Start AND :" + column + "End";
+            String condition = column + " BETWEEN :" + column + "Start AND :" + column + "End";
             this.appendWhereClause(condition);
             this.parameters.put(column + "Start", startValue);
             this.parameters.put(column + "End", endValue);
@@ -167,7 +167,7 @@ public class QueryBuilder {
             if (i > 0) {
                 condition.append(", ' ', ");
             }
-            condition.append("COALESCE(CAST(").append(this.aliasTableName).append(".")
+            condition.append("COALESCE(CAST(")
                     .append(columns.get(i)).append(" AS String), '')"); // Thêm COALESCE để thay thế NULL
         }
         condition.append(")");
@@ -190,7 +190,7 @@ public class QueryBuilder {
 
     // Add ORDER BY clause, defaulting to "id DESC"
     public QueryBuilder orderBy(String sortBy) {
-        String sortColumn = this.aliasTableName + ".lastModifiedAt";
+        String sortColumn = this.aliasTableName + "lastModifiedAt";
         String sortDirection = PagingQuery.DESC_SYMBOL;
 
         if (sortBy != null && !sortBy.trim().isEmpty()) {
@@ -198,7 +198,7 @@ public class QueryBuilder {
 
             // Determine the sort column, defaulting to "createdAt" if sortClause[0] is empty
             if (sortClause.length > 0 && !sortClause[0].isEmpty()) {
-                sortColumn = this.aliasTableName + "." + sortClause[0];
+                sortColumn = this.aliasTableName + sortClause[0];
             }
             // Determine the sort direction, defaulting to DESC
             if (sortClause.length > 1 && PagingQuery.ASC_SYMBOL.equalsIgnoreCase(sortClause[1])) {
@@ -231,7 +231,7 @@ public class QueryBuilder {
         if (this.query.toString().contains("WHERE")) {
             this.query.append(" AND ").append(clause);
         } else {
-            this.query.append(" WHERE ").append(this.aliasTableName).append(".").append(clause);
+            this.query.append(" WHERE ").append(clause);
         }
     }
 

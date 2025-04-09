@@ -14,9 +14,9 @@ public abstract class AbstractPagingEntityRepository<E extends AuditableEntity, 
         implements CustomEntityRepository<E, Q, S> {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    protected EntityManager entityManager;
 
-    private final Class<E> entityClass;
+    protected final Class<E> entityClass;
 
     protected AbstractPagingEntityRepository(Class<E> entityClass) {
         this.entityClass = entityClass;

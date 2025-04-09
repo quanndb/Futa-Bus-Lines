@@ -21,6 +21,7 @@
         <module>common-client</module>
         <module>common-persistence</module>
         <module>common-util</module>
+        <module>common-excel</module>
     </modules>
 
     <properties>

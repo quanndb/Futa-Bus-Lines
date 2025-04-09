@@ -32,5 +32,7 @@ public interface AccountCommandService {
 
     CreateOrUpdateAccountResponse update(UUID id, UpdateAccountRequest request);
 
+    void setActive(UUID id, Boolean active);
+
     void delete(UUID id);
 }
