@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class QueryBuilder {
 
@@ -176,20 +177,25 @@ public class QueryBuilder {
         condition.append(") AS String))");
 
         // Thêm mệnh đề LIKE
-        condition.append(" LIKE CONCAT('%', CAST(UNACCENT(:")
-                .append("keyword")
-                .append(") AS String), '%') ");
+        String randomKeywordName = RandomCodeUtil.generateOrderCode("");
+        condition.append(" LIKE CONCAT('%', LOWER(CAST(UNACCENT(:")
+                .append(String.join("", "keyword", randomKeywordName))
+                .append(") AS String)), '%') ");
 
         // Thêm giá trị tham số
-        this.parameters.put("keyword", value.trim().toLowerCase());
+        this.parameters.put(String.join("", "keyword", randomKeywordName), value.trim().toLowerCase());
 
         // Append vào WHERE clause
-        this.query.append(" WHERE ").append(condition);
+        if (this.query.toString().contains("WHERE")) {
+            this.query.append(" AND ").append(condition);
+        } else {
+            this.query.append(" WHERE ").append(condition);
+        }
         return this;
     }
 
     // Add ORDER BY clause, defaulting to "id DESC"
-    public QueryBuilder orderBy(String sortBy) {
+    public QueryBuilder orderBy(String sortBy, String alias) {
         String sortColumn = this.aliasTableName + "lastModifiedAt";
         String sortDirection = PagingQuery.DESC_SYMBOL;
 
@@ -198,7 +204,7 @@ public class QueryBuilder {
 
             // Determine the sort column, defaulting to "createdAt" if sortClause[0] is empty
             if (sortClause.length > 0 && !sortClause[0].isEmpty()) {
-                sortColumn = this.aliasTableName + sortClause[0];
+                sortColumn = Objects.isNull(alias) ? this.aliasTableName : alias + sortClause[0];
             }
             // Determine the sort direction, defaulting to DESC
             if (sortClause.length > 1 && PagingQuery.ASC_SYMBOL.equalsIgnoreCase(sortClause[1])) {
@@ -213,6 +219,10 @@ public class QueryBuilder {
                 .append(sortDirection);
 
         return this;
+    }
+
+    public QueryBuilder orderBy(String sortBy) {
+        return this.orderBy(sortBy, null);
     }
 
     // group by clause

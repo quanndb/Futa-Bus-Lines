@@ -10,6 +10,7 @@ import com.fasfood.notificationservice.domain.query.EmailTemplatePagingQuery;
 import com.fasfood.notificationservice.infrastructure.persistence.entity.EmailTemplateEntity;
 import com.fasfood.persistence.custom.EntityRepository;
 import com.fasfood.web.support.AbstractQueryService;
+import com.fasfood.web.support.DomainRepository;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,10 @@ import java.util.UUID;
 public class EmailTemplateQueryServiceImpl extends AbstractQueryService<EmailTemplate, EmailTemplateEntity, EmailTemplateDTO, UUID, EmailTemplatePagingQuery, EmailTemplatePagingRequest>
         implements EmailTemplateQueryService {
 
-    protected EmailTemplateQueryServiceImpl(EntityRepository<EmailTemplateEntity, UUID> entityRepository,
+    protected EmailTemplateQueryServiceImpl(DomainRepository<EmailTemplate, UUID> domainRepository,
+                                            EntityRepository<EmailTemplateEntity, UUID> entityRepository,
                                             DTOMapper<EmailTemplateDTO, EmailTemplate, EmailTemplateEntity> dtoMapper,
                                             QueryMapper<EmailTemplatePagingQuery, EmailTemplatePagingRequest> pagingRequestMapper) {
-        super(entityRepository, dtoMapper, pagingRequestMapper);
+        super(domainRepository, entityRepository, dtoMapper, pagingRequestMapper);
     }
-
-
 }

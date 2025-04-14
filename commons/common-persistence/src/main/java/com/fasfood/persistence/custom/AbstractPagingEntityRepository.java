@@ -27,7 +27,7 @@ public abstract class AbstractPagingEntityRepository<E extends AuditableEntity, 
     public List<E> search(Q query) {
         QueryBuilder queryBuilder = QueryBuilder.select("a", this.entityClass.getSimpleName(), "a");
         this.createWhereClause(queryBuilder, query);
-        queryBuilder.orderBy(query.getSortBy()).limit(query.getPageIndex(), query.getPageSize());
+        this.createOrderByClause(queryBuilder, query);
         Query entityManagerQuery = this.entityManager.createQuery(queryBuilder.build(), this.entityClass);
         queryBuilder.getParameters().forEach(entityManagerQuery::setParameter);
         return (List<E>) entityManagerQuery.getResultList();
@@ -56,5 +56,9 @@ public abstract class AbstractPagingEntityRepository<E extends AuditableEntity, 
         queryBuilder.like(List.of("id"), query.getKeyword())
                 .whereIn("id", query.getIds())
                 .where("deleted", false);
+    }
+
+    protected void createOrderByClause(QueryBuilder queryBuilder, Q query) {
+        queryBuilder.orderBy(query.getSortBy(), "a").limit(query.getPageIndex(), query.getPageSize());
     }
 }

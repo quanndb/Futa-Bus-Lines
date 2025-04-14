@@ -2,8 +2,6 @@ package com.fasfood.web.support;
 
 import com.fasfood.common.dto.PageDTO;
 import com.fasfood.common.dto.request.PagingRequest;
-import com.fasfood.common.error.NotFoundError;
-import com.fasfood.common.exception.ResponseException;
 import com.fasfood.common.mapper.DTOMapper;
 import com.fasfood.common.mapper.QueryMapper;
 import com.fasfood.common.query.PagingQuery;
@@ -15,13 +13,16 @@ import java.util.List;
 public abstract class AbstractQueryService<D, E, O, I, Q extends PagingQuery, R extends PagingRequest>
         implements QueryService<O, I, R> {
 
+    protected final DomainRepository<D, I> domainRepository;
     protected final EntityRepository<E, I> entityRepository;
     protected final DTOMapper<O, D, E> dtoMapper;
     protected final QueryMapper<Q, R> pagingRequestMapper;
 
-    protected AbstractQueryService(EntityRepository<E, I> entityRepository,
+    protected AbstractQueryService(DomainRepository<D, I> domainRepository,
+                                   EntityRepository<E, I> entityRepository,
                                    DTOMapper<O, D, E> dtoMapper,
                                    QueryMapper<Q, R> pagingRequestMapper) {
+        this.domainRepository = domainRepository;
         this.entityRepository = entityRepository;
         this.dtoMapper = dtoMapper;
         this.pagingRequestMapper = pagingRequestMapper;
@@ -29,9 +30,7 @@ public abstract class AbstractQueryService<D, E, O, I, Q extends PagingQuery, R 
 
     @Override
     public O getById(I id) {
-        E found = this.entityRepository.findById(id)
-                .orElseThrow(() -> new ResponseException(NotFoundError.NOT_FOUND));
-        return this.dtoMapper.entityToDTO(found);
+        return this.dtoMapper.domainToDTO(this.domainRepository.getById(id));
     }
 
     @Override

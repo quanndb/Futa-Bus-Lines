@@ -23,10 +23,10 @@ public class RouteEntity extends AuditableEntity {
     @Id
     @Column(name = "id", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
     private UUID id;
-    @Column(name = "departure_code", length = ValidateConstraint.LENGTH.CODE_MAX_LENGTH, nullable = false)
-    private String departureCode;
-    @Column(name = "destination_code", length = ValidateConstraint.LENGTH.CODE_MAX_LENGTH, nullable = false)
-    private String destinationCode;
+    @Column(name = "departure_id", length = ValidateConstraint.LENGTH.CODE_MAX_LENGTH, nullable = false)
+    private UUID departureId;
+    @Column(name = "destination_id", length = ValidateConstraint.LENGTH.CODE_MAX_LENGTH, nullable = false)
+    private UUID destinationId;
     @Column(name = "distance", nullable = false)
     private Double distance;
     @Column(name = "duration", nullable = false)

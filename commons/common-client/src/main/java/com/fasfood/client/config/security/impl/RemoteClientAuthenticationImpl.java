@@ -22,6 +22,9 @@ public class RemoteClientAuthenticationImpl implements ClientAuthentication {
     @Override
     public ClientResponse getClientToken(ClientRequest clientRequest) {
         Response<ClientResponse> clientTokenResponse = this.iamClient.getClientToken(clientRequest);
+        if(!clientTokenResponse.isSuccess()) {
+            throw clientTokenResponse.getException();
+        }
         return Objects.nonNull(clientTokenResponse)
                 && Objects.nonNull(clientTokenResponse.getData()) ? clientTokenResponse.getData() : null;
     }

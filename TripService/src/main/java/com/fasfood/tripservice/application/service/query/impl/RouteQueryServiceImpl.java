@@ -4,17 +4,18 @@ import com.fasfood.common.dto.PageDTO;
 import com.fasfood.common.mapper.DTOMapper;
 import com.fasfood.common.mapper.QueryMapper;
 import com.fasfood.persistence.custom.EntityRepository;
-import com.fasfood.tripservice.application.dto.mapper.PlaceDTOMapper;
+import com.fasfood.tripservice.application.dto.mapper.TransitPointDTOMapper;
 import com.fasfood.tripservice.application.dto.request.RoutePagingRequest;
-import com.fasfood.tripservice.application.dto.response.PlaceDTO;
 import com.fasfood.tripservice.application.dto.response.RouteDTO;
+import com.fasfood.tripservice.application.dto.response.TransitPointDTO;
 import com.fasfood.tripservice.application.service.query.RouteQueryService;
 import com.fasfood.tripservice.domain.Route;
 import com.fasfood.tripservice.domain.query.RoutePagingQuery;
 import com.fasfood.tripservice.infrastructure.persistence.entity.RouteEntity;
-import com.fasfood.tripservice.infrastructure.persistence.repository.PlaceEntityRepository;
+import com.fasfood.tripservice.infrastructure.persistence.repository.TransitPointEntityRepository;
 import com.fasfood.tripservice.infrastructure.support.util.ExcelExtractor;
 import com.fasfood.web.support.AbstractQueryService;
+import com.fasfood.web.support.DomainRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -29,17 +30,20 @@ import java.util.stream.Collectors;
 public class RouteQueryServiceImpl extends AbstractQueryService<Route, RouteEntity, RouteDTO, UUID, RoutePagingQuery, RoutePagingRequest>
         implements RouteQueryService {
 
-    private final PlaceEntityRepository placeEntityRepository;
-    private final PlaceDTOMapper placeDTOMapper;
+    private final TransitPointEntityRepository placeEntityRepository;
+    private final TransitPointDTOMapper placeDTOMapper;
 
-    protected RouteQueryServiceImpl(EntityRepository<RouteEntity, UUID> entityRepository,
+    protected RouteQueryServiceImpl(DomainRepository<Route, UUID> domainRepository,
+                                    EntityRepository<RouteEntity, UUID> entityRepository,
                                     DTOMapper<RouteDTO, Route, RouteEntity> dtoMapper,
                                     QueryMapper<RoutePagingQuery, RoutePagingRequest> pagingRequestMapper,
-                                    PlaceEntityRepository placeEntityRepository, PlaceDTOMapper placeDTOMapper) {
-        super(entityRepository, dtoMapper, pagingRequestMapper);
+                                    TransitPointEntityRepository placeEntityRepository,
+                                    TransitPointDTOMapper placeDTOMapper) {
+        super(domainRepository, entityRepository, dtoMapper, pagingRequestMapper);
         this.placeEntityRepository = placeEntityRepository;
         this.placeDTOMapper = placeDTOMapper;
     }
+
 
     @Override
     public byte[] getTemplate() {
@@ -48,21 +52,21 @@ public class RouteQueryServiceImpl extends AbstractQueryService<Route, RouteEnti
 
     @Override
     public List<RouteDTO> enrichRouteDTO(List<RouteDTO> routeDTOList) {
-        Set<String> placeCodeSet = new HashSet<>();
+        Set<UUID> placeIds = new HashSet<>();
         routeDTOList.forEach(routeDTO -> {
-            placeCodeSet.add(routeDTO.getDepartureCode());
-            placeCodeSet.add(routeDTO.getDestinationCode());
+            placeIds.add(routeDTO.getDepartureId());
+            placeIds.add(routeDTO.getDestinationId());
         });
-        Map<String, PlaceDTO> placeDTOS = this.placeDTOMapper
-                .entityToDTO(this.placeEntityRepository.findAllByCodes(placeCodeSet))
+        Map<UUID, TransitPointDTO> placeDTOS = this.placeDTOMapper
+                .entityToDTO(this.placeEntityRepository.findAllById(placeIds))
                 .stream()
-                .collect(Collectors.toMap(PlaceDTO::getCode, Function.identity()));
+                .collect(Collectors.toMap(TransitPointDTO::getId, Function.identity()));
         routeDTOList.forEach(routeDTO -> {
-            if (placeDTOS.containsKey(routeDTO.getDepartureCode())) {
-                routeDTO.setDeparture(placeDTOS.get(routeDTO.getDepartureCode()));
+            if (placeDTOS.containsKey(routeDTO.getDepartureId())) {
+                routeDTO.setDeparture(placeDTOS.get(routeDTO.getDepartureId()).getName());
             }
-            if (placeDTOS.containsKey(routeDTO.getDestinationCode())) {
-                routeDTO.setDestination(placeDTOS.get(routeDTO.getDestinationCode()));
+            if (placeDTOS.containsKey(routeDTO.getDestinationId())) {
+                routeDTO.setDestination(placeDTOS.get(routeDTO.getDestinationId()).getName());
             }
         });
         return routeDTOList;

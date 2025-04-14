@@ -20,18 +20,18 @@ public interface RouteEntityRepository extends EntityRepository<RouteEntity, UUI
     @Query("SELECT a FROM RouteEntity a WHERE a.id = :id AND a.deleted = false")
     Optional<RouteEntity> findById(@Param("id") UUID id);
 
-    @Query("SELECT a FROM RouteEntity a WHERE a.departureCode = :departureCode " +
-            "AND a.destinationCode = :destinationCode AND a.deleted = false")
-    Optional<RouteEntity> findByDepartureCodeAndDepartureCode(@Param("departureCode") String departureCode,
-                                                              @Param("destinationCode") String destinationCode);
+    @Query("SELECT a FROM RouteEntity a WHERE a.departureId = :departureId " +
+            "AND a.destinationId = :destinationId AND a.deleted = false")
+    Optional<RouteEntity> findByDepartureIdAndDepartureId(@Param("departureId") UUID departureId,
+                                                          @Param("destinationId") UUID destinationId);
 
-    @Query("SELECT a FROM RouteEntity a WHERE a.departureCode = :departureCode AND a.destinationCode = :destinationCode " +
-            "AND a.departureCode != :exceptDepartureCode AND a.destinationCode != :exceptDestinationCode " +
+    @Query("SELECT a FROM RouteEntity a WHERE a.departureId = :departureId AND a.destinationId = :destinationId " +
+            "AND a.departureId != :exceptDepartureId AND a.destinationId != :exceptDestinationId " +
             "AND a.deleted = false")
-    Optional<RouteEntity> findByDepartureCodeAndDepartureCode(@Param("departureCode") String departureCode,
-                                                              @Param("destinationCode") String destinationCode,
-                                                              @Param("exceptDepartureCode") String exceptDepartureCode,
-                                                              @Param("exceptDestinationCode") String exceptDestinationCode);
+    Optional<RouteEntity> findByDepartureIdAndDepartureId(@Param("departureId") UUID departureId,
+                                                          @Param("destinationId") UUID destinationId,
+                                                          @Param("exceptDepartureId") UUID exceptDepartureId,
+                                                          @Param("exceptDestinationId") UUID exceptDestinationId);
 
     @Modifying
     @Transactional

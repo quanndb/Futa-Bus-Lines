@@ -2,11 +2,8 @@ package com.fasfood.tripservice.presentation.rest;
 
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
-import com.fasfood.tripservice.application.dto.request.PlaceCreateOrUpdateRequest;
-import com.fasfood.tripservice.application.dto.request.PlacePagingRequest;
 import com.fasfood.tripservice.application.dto.request.RouteCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.RoutePagingRequest;
-import com.fasfood.tripservice.application.dto.response.PlaceDTO;
 import com.fasfood.tripservice.application.dto.response.RouteDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

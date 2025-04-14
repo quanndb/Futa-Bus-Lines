@@ -11,9 +11,9 @@ import com.fasfood.tripservice.application.service.cmd.RouteCommandService;
 import com.fasfood.tripservice.domain.Route;
 import com.fasfood.tripservice.domain.cmd.RouteCreateOrUpDateCmd;
 import com.fasfood.tripservice.domain.repository.RouteRepository;
-import com.fasfood.tripservice.infrastructure.persistence.entity.PlaceEntity;
-import com.fasfood.tripservice.infrastructure.persistence.repository.PlaceEntityRepository;
+import com.fasfood.tripservice.infrastructure.persistence.entity.TransitPointEntity;
 import com.fasfood.tripservice.infrastructure.persistence.repository.RouteEntityRepository;
+import com.fasfood.tripservice.infrastructure.persistence.repository.TransitPointEntityRepository;
 import com.fasfood.tripservice.infrastructure.support.exception.BadRequestError;
 import com.fasfood.tripservice.infrastructure.support.util.ExcelExtractor;
 import jakarta.transaction.Transactional;
@@ -32,7 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RouteCommandServiceImpl implements RouteCommandService {
 
-    private final PlaceEntityRepository placeEntityRepository;
+    private final TransitPointEntityRepository transitPointEntityRepository;
     private final RouteEntityRepository routeEntityRepository;
     private final RouteCommandMapper commandMapper;
     private final RouteDTOMapper routeDTOMapper;
@@ -42,17 +42,15 @@ public class RouteCommandServiceImpl implements RouteCommandService {
     @Transactional
     public void upload(MultipartFile file) {
         List<RouteCreateOrUpdateRequest> requests = this.extractPlaceRequestFromFile(file);
-        Set<String> placeCodes = new HashSet<>();
+        Set<UUID> placeIds = new HashSet<>();
         requests.forEach(request -> {
-            placeCodes.add(request.getDepartureCode());
-            placeCodes.add(request.getDestinationCode());
+            placeIds.add(request.getDepartureId());
+            placeIds.add(request.getDepartureId());
         });
-        this.checkExistPlaces(placeCodes);
+        this.checkExistPlaces(placeIds);
         List<RouteCreateOrUpDateCmd> cmds = this.commandMapper.cmdListFromRequestList(requests);
         List<Route> routes = new ArrayList<>();
-        cmds.forEach(cmd -> {
-            routes.add(new Route(cmd));
-        });
+        cmds.forEach(cmd -> routes.add(new Route(cmd)));
         this.routeEntityRepository.deleteAll();
         this.routeRepository.saveAll(routes);
     }
@@ -60,8 +58,8 @@ public class RouteCommandServiceImpl implements RouteCommandService {
     @Override
     @Transactional
     public RouteDTO create(RouteCreateOrUpdateRequest request) {
-        this.checkExistPlaces(Set.of(request.getDepartureCode(), request.getDestinationCode()));
-        this.checkExistedRoute(request.getDepartureCode(), request.getDestinationCode());
+        this.checkExistPlaces(Set.of(request.getDepartureId(), request.getDestinationId()));
+        this.checkExistedRoute(request.getDepartureId(), request.getDestinationId());
         RouteCreateOrUpDateCmd cmd = this.commandMapper.cmdFromRequest(request);
         return this.routeDTOMapper.domainToDTO(this.routeRepository.save(new Route(cmd)));
     }
@@ -70,8 +68,8 @@ public class RouteCommandServiceImpl implements RouteCommandService {
     @Transactional
     public RouteDTO update(UUID id, RouteCreateOrUpdateRequest request) {
         Route route = this.routeRepository.getById(id);
-        this.checkExistPlaces(Set.of(request.getDepartureCode(), request.getDestinationCode()));
-        this.checkExistedRouteExcept(request.getDepartureCode(), request.getDestinationCode(), route.getDepartureCode(), route.getDestinationCode());
+        this.checkExistPlaces(Set.of(request.getDepartureId(), request.getDestinationId()));
+        this.checkExistedRouteExcept(request.getDepartureId(), request.getDestinationId(), route.getDepartureId(), route.getDestinationId());
         RouteCreateOrUpDateCmd cmd = this.commandMapper.cmdFromRequest(request);
         return this.routeDTOMapper.domainToDTO(this.routeRepository.save(route.update(cmd)));
     }
@@ -84,17 +82,14 @@ public class RouteCommandServiceImpl implements RouteCommandService {
         this.routeRepository.save(route);
     }
 
-    private void checkExistPlaces(Set<String> places) {
+    private void checkExistPlaces(Set<UUID> places) {
         if (CollectionUtils.isEmpty(places)) {
             return;
         }
-        List<String> placesCopy = new ArrayList<>(places);
-        List<PlaceEntity> placeEntities = this.placeEntityRepository.findAllByCodes(places);
-        placeEntities.forEach(placeEntity -> {
-            placesCopy.remove(placeEntity.getCode());
-        });
-        if (!CollectionUtils.isEmpty(placesCopy)) {
-            throw new ResponseException(BadRequestError.NOT_EXISTED_CODE, placesCopy);
+        List<TransitPointEntity> placeEntities = this.transitPointEntityRepository.findAllById(places);
+        placeEntities.forEach(place -> places.remove(place.getId()));
+        if (!CollectionUtils.isEmpty(places)) {
+            throw new ResponseException(BadRequestError.NOT_EXISTED_CODE, places);
         }
     }
 
@@ -103,8 +98,8 @@ public class RouteCommandServiceImpl implements RouteCommandService {
         var mapper = ExcelExtractor.extractRoute();
 
         // Add validation rules
-        mapper.column("Departure Code").addValidationRule(CellValidator.notNull());
-        mapper.column("Destination Code").addValidationRule(CellValidator.notNull());
+        mapper.column("Departure Id").addValidationRule(CellValidator.notNull());
+        mapper.column("Destination Id").addValidationRule(CellValidator.notNull());
         mapper.column("Distance (km)").addValidationRule(CellValidator.notNull());
         mapper.column("Duration (min)").addValidationRule(CellValidator.notNull());
 
@@ -124,8 +119,8 @@ public class RouteCommandServiceImpl implements RouteCommandService {
         Set<String> seenRoutes = new HashSet<>();
         List<String> errors = new ArrayList<>();
         for (RouteCreateOrUpdateRequest route : routes) {
-            String departureCode = route.getDepartureCode();
-            String destinationCode = route.getDestinationCode();
+            UUID departureCode = route.getDepartureId();
+            UUID destinationCode = route.getDestinationId();
 
             String key = departureCode + "->" + destinationCode;
             if (seenRoutes.contains(key)) {
@@ -140,25 +135,21 @@ public class RouteCommandServiceImpl implements RouteCommandService {
         return routes;
     }
 
-    private void checkExistedRoute(String departureCode, String destinationCode) {
+    private void checkExistedRoute(UUID departureCode, UUID destinationCode) {
         List<String> errors = new ArrayList<>();
-        this.routeEntityRepository.findByDepartureCodeAndDepartureCode(departureCode, destinationCode)
+        this.routeEntityRepository.findByDepartureIdAndDepartureId(departureCode, destinationCode)
                 .ifPresent(routeEntity
-                        -> {
-                    errors.add(routeEntity.getDepartureCode() + "->" + routeEntity.getDestinationCode());
-                });
+                        -> errors.add(routeEntity.getDepartureId() + "->" + routeEntity.getDestinationId()));
         if (!CollectionUtils.isEmpty(errors)) {
             throw new ResponseException(BadRequestError.EXISTED_CODE, errors);
         }
     }
 
-    private void checkExistedRouteExcept(String departureCode, String destinationCode, String exceptDepartureCode, String exceptDestinationCode) {
+    private void checkExistedRouteExcept(UUID departureCode, UUID destinationCode, UUID exceptDepartureCode, UUID exceptDestinationCode) {
         List<String> errors = new ArrayList<>();
-        this.routeEntityRepository.findByDepartureCodeAndDepartureCode(departureCode, destinationCode, exceptDepartureCode, exceptDestinationCode)
+        this.routeEntityRepository.findByDepartureIdAndDepartureId(departureCode, destinationCode, exceptDepartureCode, exceptDestinationCode)
                 .ifPresent(routeEntity
-                        -> {
-                    errors.add(routeEntity.getDepartureCode() + "->" + routeEntity.getDestinationCode());
-                });
+                        -> errors.add(routeEntity.getDepartureId() + "->" + routeEntity.getDestinationId()));
         if (!CollectionUtils.isEmpty(errors)) {
             throw new ResponseException(BadRequestError.EXISTED_CODE, errors);
         }

@@ -34,17 +34,15 @@ public class ExcelUtil {
      */
     public static class ExcelColumn<T> {
         private final String header;
-        private final Class<T> type;
         private final Function<Cell, T> converter;
         private final List<ValidationRule<T>> validationRules;
         private final String fieldName;
         private final BiConsumer<Object, T> setter;
         private final Function<Object, T> getter;
 
-        public ExcelColumn(String header, Class<T> type, Function<Cell, T> converter,
+        public ExcelColumn(String header, Function<Cell, T> converter,
                            String fieldName, BiConsumer<Object, T> setter, Function<Object, T> getter) {
             this.header = header;
-            this.type = type;
             this.converter = converter;
             this.validationRules = new ArrayList<>();
             this.fieldName = fieldName;
@@ -77,7 +75,7 @@ public class ExcelUtil {
             }
         }
 
-        public String getHeader(){
+        public String getHeader() {
             return header;
         }
 
@@ -139,12 +137,10 @@ public class ExcelUtil {
      * Builder for configuring Excel import/export
      */
     public static class ExcelMapper<T> {
-        private final Class<T> targetClass;
         private final List<ExcelColumn<?>> columns = new ArrayList<>();
         private Function<Map<String, Object>, T> mapToObject;
 
         public ExcelMapper(Class<T> targetClass) {
-            this.targetClass = targetClass;
             // Default mapper tries to use reflection
             this.mapToObject = map -> {
                 try {
@@ -178,14 +174,14 @@ public class ExcelUtil {
             }
         }
 
-        public <V> ExcelMapper<T> addColumn(String header, Class<V> type, Function<Cell, V> converter,
+        public <V> ExcelMapper<T> addColumn(String header, Function<Cell, V> converter,
                                             String fieldName, BiConsumer<T, V> setter, Function<T, V> getter) {
             @SuppressWarnings("unchecked")
             BiConsumer<Object, V> setterWrapper = (obj, val) -> setter.accept((T) obj, val);
             @SuppressWarnings("unchecked")
             Function<Object, V> getterWrapper = obj -> getter.apply((T) obj);
 
-            columns.add(new ExcelColumn<>(header, type, converter, fieldName, setterWrapper, getterWrapper));
+            columns.add(new ExcelColumn<>(header, converter, fieldName, setterWrapper, getterWrapper));
             return this;
         }
 

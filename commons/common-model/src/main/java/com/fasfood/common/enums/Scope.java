@@ -1,7 +1,7 @@
 package com.fasfood.common.enums;
 
 public enum Scope {
-    VIEW,
+    READ,
     CREATE,
     UPDATE,
     DELETE,

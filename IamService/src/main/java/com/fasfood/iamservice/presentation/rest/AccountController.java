@@ -70,7 +70,7 @@ public interface AccountController {
     Response<CreateOrUpdateAccountResponse> updateAccount(@RequestBody @Valid UpdateAccountRequest request, @PathVariable UUID id);
 
     @Operation(summary = "Set account's active")
-    @PostMapping("/{id}")
+    @PatchMapping("/{id}")
     Response<Void> setActive(@PathVariable UUID id, @RequestParam Boolean active);
 
     @Operation(summary = "Delete account")

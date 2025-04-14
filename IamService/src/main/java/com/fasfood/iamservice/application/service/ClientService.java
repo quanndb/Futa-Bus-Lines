@@ -3,6 +3,8 @@ package com.fasfood.iamservice.application.service;
 import com.fasfood.client.config.security.ClientAuthentication;
 import com.fasfood.common.dto.request.ClientRequest;
 import com.fasfood.common.dto.response.ClientResponse;
+import com.fasfood.common.error.InternalServerError;
+import com.fasfood.common.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +44,6 @@ public class ClientService implements ClientAuthentication {
         if (Objects.nonNull(response.getBody()) && Objects.nonNull(response.getBody().get("access_token"))) {
             return ClientResponse.builder().accessToken(response.getBody().get("access_token").toString()).build();
         }
-        return null;
+        throw new ResponseException(InternalServerError.INTERNAL_SERVER_ERROR);
     }
 }

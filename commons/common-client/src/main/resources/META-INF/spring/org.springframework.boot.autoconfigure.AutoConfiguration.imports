@@ -5,4 +5,6 @@ com.fasfood.client.client.storage.StorageClientFallback
 com.fasfood.client.client.google.GoogleOAuthClientFallback
 com.fasfood.client.client.google.GoogleClientFallback
 com.fasfood.client.client.notification.NotificationClientFallback
+com.fasfood.client.client.booking.BookingClientFallback
+com.fasfood.client.client.trip.TripClientFallback
 com.fasfood.client.config.security.impl.RemoteClientAuthenticationImpl

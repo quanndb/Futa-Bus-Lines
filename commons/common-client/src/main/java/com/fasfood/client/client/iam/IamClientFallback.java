@@ -2,8 +2,11 @@ package com.fasfood.client.client.iam;
 
 import com.fasfood.common.UserAuthority;
 import com.fasfood.common.dto.request.ClientRequest;
+import com.fasfood.common.dto.request.PagingRequest;
 import com.fasfood.common.dto.response.ClientResponse;
+import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.UserResponse;
 import com.fasfood.common.error.ServiceUnavailableError;
 import com.fasfood.common.exception.ForwardInnerAlertException;
 import com.fasfood.common.exception.ResponseException;
@@ -13,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -44,6 +48,12 @@ public class IamClientFallback implements FallbackFactory<IamClient> {
             log.error("Get client token fail cause:", this.cause);
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
+
+        @Override
+        public PagingResponse<UserResponse> getUsersBysIds(PagingRequest pagingRequest) {
+            log.error("Get users:", this.cause);
+            return PagingResponse.of(List.of(), pagingRequest.getPageIndex(), pagingRequest.getPageSize(), 0);
         }
     }
 }
