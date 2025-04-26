@@ -1,31 +1,44 @@
 package com.fasfood.client.config.security.impl;
 
-import com.fasfood.client.client.iam.IamClient;
 import com.fasfood.client.config.security.ClientAuthentication;
 import com.fasfood.common.dto.request.ClientRequest;
 import com.fasfood.common.dto.response.ClientResponse;
-import com.fasfood.common.dto.response.Response;
-import org.springframework.context.annotation.Lazy;
+import com.fasfood.common.error.InternalServerError;
+import com.fasfood.common.exception.ResponseException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
 import java.util.Objects;
 
 @Component
 public class RemoteClientAuthenticationImpl implements ClientAuthentication {
 
-    private final IamClient iamClient;
+    @Value("${app.client.keycloak}")
+    private String keycloakAuthURL;
 
-    public RemoteClientAuthenticationImpl(@Lazy IamClient iamClient) {
-        this.iamClient = iamClient;
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public ClientResponse getClientToken(ClientRequest clientRequest) {
-        Response<ClientResponse> clientTokenResponse = this.iamClient.getClientToken(clientRequest);
-        if(!clientTokenResponse.isSuccess()) {
-            throw clientTokenResponse.getException();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(clientRequest.getClientId(), clientRequest.getClientSecret()); // Basic Auth
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        HttpEntity<String> request = new HttpEntity<>("grant_type=client_credentials", headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                String.join("", this.keycloakAuthURL, "/protocol/openid-connect/token"), HttpMethod.POST, request, Map.class
+        );
+        if (Objects.nonNull(response.getBody()) && Objects.nonNull(response.getBody().get("access_token"))) {
+            return ClientResponse.builder().accessToken(response.getBody().get("access_token").toString()).build();
         }
-        return Objects.nonNull(clientTokenResponse)
-                && Objects.nonNull(clientTokenResponse.getData()) ? clientTokenResponse.getData() : null;
+        throw new ResponseException(InternalServerError.INTERNAL_SERVER_ERROR);
     }
 }

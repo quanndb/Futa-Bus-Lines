@@ -38,8 +38,11 @@ public interface BusTypeController {
     @PreAuthorize("hasPermission(null, 'bus.delete')")
     Response<Void> delete(@PathVariable UUID id);
 
-    @Operation(summary = "Delete bus type")
+    @Operation(summary = "Get bus type")
     @GetMapping(value = "")
-    @PreAuthorize("hasPermission(null, 'bus.read')")
     Response<List<BusTypeDTO>> getAll();
+
+    @Operation(summary = "Get bus type by id")
+    @GetMapping(value = "/{id}")
+    Response<BusTypeDTO> getById(@PathVariable UUID id);
 }

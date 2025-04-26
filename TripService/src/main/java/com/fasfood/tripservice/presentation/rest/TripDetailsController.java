@@ -1,6 +1,7 @@
 package com.fasfood.tripservice.presentation.rest;
 
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.TripDetailsResponse;
 import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,9 +17,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,6 +44,11 @@ public interface TripDetailsController {
     @GetMapping(value = "/trips/{id}/details")
     @PreAuthorize("hasPermission(null, 'trip.read')")
     Response<List<TripDetailsDTO>> getTripDetails(@PathVariable UUID id);
+
+    @Operation(summary = "Get trip details")
+    @GetMapping(value = "/trips-details/{id}")
+    Response<TripDetailsResponse> getDetails(@PathVariable UUID id, @RequestParam UUID departureId,
+                                             @RequestParam UUID arrivalId, @RequestParam LocalDate departureDate);
 
     @Operation(summary = "Create trip details")
     @PostMapping(value = "/trips/{id}/details")

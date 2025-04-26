@@ -1,10 +1,12 @@
 app:
   version: v1
+  client:
+    keycloak: ${KEYCLOAK_URL:http://localhost:8888/realms/FasFood}
   security:
     enable-user: true
     client:
       client-id: trip-client
-      client-secret: tJhX5JLn1r1RwGEOTO84XT9iFVh5VaTR
+      client-secret: 6WmfqTVDshlOhxvWmTr7TFAmFhPhj2Yb
       grant-type: client_credentials
 
 server:

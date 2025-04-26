@@ -1,19 +1,21 @@
 package com.fasfood.tripservice.application.service.query.impl;
 
 import com.fasfood.client.client.booking.BookingClient;
+import com.fasfood.client.client.iam.IamClient;
+import com.fasfood.common.dto.request.GetBookedRequest;
 import com.fasfood.common.dto.response.BusTypeDTO;
+import com.fasfood.common.dto.response.TripDetailsResponse;
 import com.fasfood.common.enums.BusTypeEnum;
+import com.fasfood.common.exception.ResponseException;
 import com.fasfood.common.mapper.DTOMapper;
 import com.fasfood.common.mapper.QueryMapper;
 import com.fasfood.persistence.custom.EntityRepository;
-import com.fasfood.tripservice.application.dto.mapper.BusDTOMapper;
 import com.fasfood.tripservice.application.dto.mapper.BusTypeDTOMapper;
 import com.fasfood.tripservice.application.dto.mapper.TransitPointDTOMapper;
 import com.fasfood.tripservice.application.dto.mapper.TripDetailsDTOMapper;
 import com.fasfood.tripservice.application.dto.mapper.TripTransitDTOMapper;
 import com.fasfood.tripservice.application.dto.request.TripFilterRequest;
 import com.fasfood.tripservice.application.dto.request.TripPagingRequest;
-import com.fasfood.tripservice.application.dto.response.BusDTO;
 import com.fasfood.tripservice.application.dto.response.TransitPointDTO;
 import com.fasfood.tripservice.application.dto.response.TripDTO;
 import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
@@ -22,17 +24,22 @@ import com.fasfood.tripservice.application.dto.response.TripTransitDTO;
 import com.fasfood.tripservice.application.service.query.TripQueryService;
 import com.fasfood.tripservice.domain.Trip;
 import com.fasfood.tripservice.domain.query.TripPagingQuery;
+import com.fasfood.tripservice.infrastructure.persistence.entity.TransitPointEntity;
+import com.fasfood.tripservice.infrastructure.persistence.entity.TripDetailsEntity;
 import com.fasfood.tripservice.infrastructure.persistence.entity.TripEntity;
-import com.fasfood.tripservice.infrastructure.persistence.repository.BusEntityRepository;
+import com.fasfood.tripservice.infrastructure.persistence.entity.TripTransitEntity;
 import com.fasfood.tripservice.infrastructure.persistence.repository.BusTypeEntityRepository;
+import com.fasfood.tripservice.infrastructure.persistence.repository.SeatEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TransitPointEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripDetailsEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripTransitEntityRepository;
+import com.fasfood.tripservice.infrastructure.support.exception.NotFoundError;
 import com.fasfood.tripservice.infrastructure.support.util.ExcelExtractor;
 import com.fasfood.web.support.AbstractQueryService;
 import com.fasfood.web.support.DomainRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -57,10 +64,9 @@ public class TripQueryServiceImpl
     private final TripTransitDTOMapper tripTransitDTOMapper;
     private final TransitPointEntityRepository transitPointEntityRepository;
     private final TransitPointDTOMapper transitPointDTOMapper;
-    private final BusEntityRepository busEntityRepository;
-    private final BusDTOMapper busDTOMapper;
     private final BusTypeEntityRepository busTypeEntityRepository;
     private final BusTypeDTOMapper busTypeDTOMapper;
+    private final SeatEntityRepository seatEntityRepository;
     private final BookingClient bookingClient;
 
     protected TripQueryServiceImpl(DomainRepository<Trip, UUID> domainRepository,
@@ -73,9 +79,8 @@ public class TripQueryServiceImpl
                                    TripTransitDTOMapper tripTransitDTOMapper,
                                    TransitPointEntityRepository transitPointEntityRepository,
                                    TransitPointDTOMapper transitPointDTOMapper,
-                                   BusEntityRepository busEntityRepository,
-                                   BusDTOMapper busDTOMapper, BusTypeEntityRepository busTypeEntityRepository,
-                                   BusTypeDTOMapper busTypeDTOMapper, BookingClient bookingClient) {
+                                   BusTypeEntityRepository busTypeEntityRepository,
+                                   BusTypeDTOMapper busTypeDTOMapper, SeatEntityRepository seatEntityRepository, BookingClient bookingClient, IamClient iamClient) {
         super(domainRepository, entityRepository, dtoMapper, pagingRequestMapper);
         this.tripDetailsDTOMapper = tripDetailsDTOMapper;
         this.tripEntityRepository = tripEntityRepository;
@@ -84,10 +89,9 @@ public class TripQueryServiceImpl
         this.tripTransitDTOMapper = tripTransitDTOMapper;
         this.transitPointEntityRepository = transitPointEntityRepository;
         this.transitPointDTOMapper = transitPointDTOMapper;
-        this.busEntityRepository = busEntityRepository;
-        this.busDTOMapper = busDTOMapper;
         this.busTypeEntityRepository = busTypeEntityRepository;
         this.busTypeDTOMapper = busTypeDTOMapper;
+        this.seatEntityRepository = seatEntityRepository;
         this.bookingClient = bookingClient;
     }
 
@@ -115,23 +119,76 @@ public class TripQueryServiceImpl
         return this.enrichAvailableTrip(this.enrichTrip(entities), tripFilterRequest.getDepartureDate());
     }
 
+    @Override
+    public TripDetailsResponse getTripDetails(UUID id, UUID departureId, UUID arrivalId, LocalDate departureDate) {
+        List<UUID> detailsIds = this.tripEntityRepository.findTrips(TripFilterRequest.builder()
+                .departureId(departureId)
+                .destinationId(arrivalId)
+                .departureDate(departureDate)
+                .detailsIds(List.of(id))
+                .build());
+        if (CollectionUtils.isEmpty(detailsIds)) {
+            throw new ResponseException(NotFoundError.TRIP_DETAILS_NOT_FOUND);
+        }
+        TripDetailsEntity found = this.tripDetailsEntityRepository
+                .findById(detailsIds.getFirst()).orElseThrow(() -> new ResponseException(NotFoundError.TRIP_DETAILS_NOT_FOUND));
+        TripEntity foundTrip = this.tripEntityRepository.findById(found.getTripId())
+                .orElseThrow(() -> new ResponseException(NotFoundError.TRIP_NOT_FOUND, found.getTripId()));
+        List<String> seats = this.seatEntityRepository.findALlSeatsByTypeCode(found.getType());
+        List<TripTransitEntity> transits = this.tripTransitEntityRepository
+                .findAllByTripIdAndTransitIds(foundTrip.getId(), List.of(departureId, arrivalId));
+        List<TransitPointEntity> transitsPoint = this.transitPointEntityRepository
+                .findAllById(List.of(departureId, arrivalId));
+        if (CollectionUtils.isEmpty(transits) || transits.size() != 2) {
+            throw new ResponseException(NotFoundError.TRIP_TRANSIT_NOT_FOUND, departureId + "->" + arrivalId);
+        }
+        if (CollectionUtils.isEmpty(transitsPoint) || transitsPoint.size() != 2) {
+            throw new ResponseException(NotFoundError.TRANSIT_POINT_NOT_FOUND, departureId + "->" + arrivalId);
+        }
+        TripTransitEntity firstTripTransit = null;
+        TripTransitEntity lastTripTransit = null;
+        if (transits.getFirst().getTransitPointId().equals(departureId)) {
+            firstTripTransit = transits.getFirst();
+            lastTripTransit = transits.getLast();
+        } else {
+            firstTripTransit = transits.getLast();
+            lastTripTransit = transits.getFirst();
+        }
+        TransitPointEntity firstTransitPoint = null;
+        TransitPointEntity lastTransitPoint = null;
+        if (transitsPoint.getFirst().getId().equals(departureId)) {
+            firstTransitPoint = transitsPoint.getFirst();
+            lastTransitPoint = transitsPoint.getLast();
+        } else {
+            firstTransitPoint = transitsPoint.getLast();
+            lastTransitPoint = transitsPoint.getFirst();
+        }
+        return TripDetailsResponse.builder()
+                .route(foundTrip.getCode())
+                .type(found.getType())
+                .seats(seats)
+                .tripDetailsId(id)
+                .departureDate(departureDate)
+                .departureTime(firstTripTransit.getArrivalTime())
+                .departureId(departureId)
+                .departure(firstTransitPoint.getName())
+                .departureAddress(firstTransitPoint.getAddress())
+                .destinationId(arrivalId)
+                .destinationTime(lastTripTransit.getArrivalTime())
+                .destination(lastTransitPoint.getName())
+                .destinationAddress(lastTransitPoint.getAddress())
+                .pricePerSeat(found.getPrice())
+                .build();
+    }
+
     private List<TripResponse> enrichTrip(List<TripDetailsDTO> detailsDTOS) {
         // bus type
         Map<BusTypeEnum, BusTypeDTO> typeMap = this.busTypeDTOMapper.entityToDTO(this.busTypeEntityRepository.findAll())
                 .stream().collect(Collectors.toMap(BusTypeDTO::getType, Function.identity()));
-        // bus
-        Map<UUID, BusDTO> busDTOMap = this.busDTOMapper
-                .entityToDTO(this.busEntityRepository
-                        .findAllById(detailsDTOS.stream()
-                                .map(TripDetailsDTO::getBusId).toList()))
-                .stream().collect(Collectors.toMap(BusDTO::getId, Function.identity()));
         // enrich details
         detailsDTOS.forEach(detailsDTO -> {
             if (typeMap.containsKey(detailsDTO.getType())) {
                 detailsDTO.setTypeDetails(typeMap.get(detailsDTO.getType()));
-            }
-            if (busDTOMap.containsKey(detailsDTO.getBusId())) {
-                detailsDTO.setBus(busDTOMap.get(detailsDTO.getBusId()));
             }
         });
         // trip
@@ -164,15 +221,16 @@ public class TripQueryServiceImpl
     }
 
     private List<TripResponse> enrichAvailableTrip(List<TripResponse> responses, LocalDate startDate) {
-        Map<UUID, List<String>> bookedData = new HashMap<>();
-//        Response<Map<UUID, List<String>>> clientResponse = this.bookingClient
-//                .getBooked(new GetBookedRequest(responses.stream().map(TripResponse::getId).toList(), startDate));
-//        if (clientResponse.isSuccess()) {
-//            bookedData = clientResponse.getData();
-//        }
+        List<UUID> detailsIds = responses.stream().map(TripResponse::getId).toList();
+        Map<UUID, List<String>> clientResponse = new HashMap<>();
+        if (!CollectionUtils.isEmpty(detailsIds)) {
+            clientResponse = this.bookingClient
+                    .getBooked(new GetBookedRequest(responses.stream().map(TripResponse::getId).toList(), startDate)).getData();
+        }
         for (TripResponse item : responses) {
-            if (bookedData.containsKey(item.getId())) {
-                int availableSeat = item.getDetails().getTypeDetails().getSeatCapacity() - bookedData.get(item.getId()).size();
+            item.setDepartureDate(startDate);
+            if (clientResponse.containsKey(item.getId())) {
+                int availableSeat = item.getDetails().getTypeDetails().getSeatCapacity() - clientResponse.get(item.getId()).size();
                 if (availableSeat > 0) {
                     item.getDetails().getTypeDetails().setSeatCapacity(availableSeat);
                 } else {

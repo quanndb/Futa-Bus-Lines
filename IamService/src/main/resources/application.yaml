@@ -2,6 +2,7 @@ app:
   version: v1
   client:
     keycloak: ${KEYCLOAK_URL:http://localhost:8888/realms/FasFood}
+    return-url: ${RETURN_URL:http://localhost:3000}
   security:
     enable-user: true
     client:
@@ -20,9 +21,9 @@ app:
       google:
         verify-url: https://oauth2.googleapis.com
         user-url: https://www.googleapis.com/oauth2/v3
-        client-id: ${GOOGLE_CLIENT_ID:[[GOOGLE_CLIENT_ID]]}
-        client-secret: ${GOOGLE_CLIENT_SECRET:[[GOOGLE_CLIENT_SECRET]]}
-        redirect-uri: ${GOOGLE_REDIRECT_URL:[[GOOGLE_REDIRECT_URL]]}
+        client-id: ${GOOGLE_CLIENT_ID:[google-client-id]}
+        client-secret: ${GOOGLE_CLIENT_SECRET:[google-client-secret]}
+        redirect-uri: ${GOOGLE_REDIRECT_URL:http://localhost:8081/api/v1/auth/provider/google}
 
 server:
   port: 8081

@@ -15,7 +15,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,13 +60,13 @@ public class Trip extends Domain {
             this.tripDetails.add(newOne);
             return newOne;
         }
-        this.checkDate(cmd.getFromAt(), cmd.getToAt());
+        this.checkDate(cmd.getFromDate(), cmd.getToDate());
         for (TripDetails details : this.tripDetails) {
             if (TripStatus.INACTIVE.equals(details.getStatus()) || TripStatus.INACTIVE.equals(cmd.getStatus())) {
                 continue;
             }
-            if (this.isBetween(details.getFromAt(), details.getToAt(), cmd.getFromAt())) {
-                throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, details.getFromAt() + "-" + details.getToAt());
+            if (this.isBetween(details.getFromDate(), details.getToDate(), cmd.getFromDate())) {
+                throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, details.getFromDate() + "-" + details.getToDate());
             }
         }
         TripDetails newOne = new TripDetails(this.id, cmd);
@@ -78,7 +78,7 @@ public class Trip extends Domain {
         if (CollectionUtils.isEmpty(this.tripDetails)) {
             throw new ResponseException(NotFoundError.TRIP_DETAILS_NOT_FOUND, id);
         }
-        this.checkDate(cmd.getFromAt(), cmd.getToAt());
+        this.checkDate(cmd.getFromDate(), cmd.getToDate());
         TripDetails found = null;
         for (TripDetails details : this.tripDetails) {
             if (details.getId().equals(id)) {
@@ -88,8 +88,8 @@ public class Trip extends Domain {
             if (TripStatus.INACTIVE.equals(details.getStatus()) || TripStatus.INACTIVE.equals(cmd.getStatus())) {
                 continue;
             }
-            if (this.isBetween(details.getFromAt(), details.getToAt(), cmd.getFromAt())) {
-                throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, details.getFromAt() + "-" + details.getToAt());
+            if (this.isBetween(details.getFromDate(), details.getToDate(), cmd.getFromDate())) {
+                throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, details.getFromDate() + "->" + details.getToDate());
             }
         }
         if (Objects.isNull(found)) {
@@ -123,16 +123,16 @@ public class Trip extends Domain {
         this.tripDetails.addAll(details);
     }
 
-    private boolean isBetween(Instant from, Instant to, Instant target) {
+    private boolean isBetween(LocalDate from, LocalDate to, LocalDate target) {
         return (target.equals(from) || target.isAfter(from)) &&
                 (target.equals(to) || target.isBefore(to));
     }
 
-    private void checkDate(Instant from, Instant to) {
+    private void checkDate(LocalDate from, LocalDate to) {
         if (from.isAfter(to)) {
             throw new ResponseException(BadRequestError.FROM_MUST_BEFORE_TO, from + " - " + to);
         }
-        if (Instant.now().isAfter(from)) {
+        if (LocalDate.now().isAfter(from)) {
             throw new ResponseException(BadRequestError.INVALID_DATE, from);
         }
     }

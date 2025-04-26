@@ -4,11 +4,9 @@ import com.fasfood.common.dto.AuditableDTO;
 import com.fasfood.common.enums.Gender;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@SuperBuilder
 public class UpdateAccountResponse extends AuditableDTO {
     private String id;
     private String email;

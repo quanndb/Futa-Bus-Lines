@@ -21,11 +21,9 @@ import com.fasfood.tripservice.domain.TripDetails;
 import com.fasfood.tripservice.domain.cmd.TripCreateOrUpdateCmd;
 import com.fasfood.tripservice.domain.cmd.TripDetailsCreateOrUpdateCmd;
 import com.fasfood.tripservice.domain.repository.TripRepository;
-import com.fasfood.tripservice.infrastructure.persistence.entity.BusEntity;
 import com.fasfood.tripservice.infrastructure.persistence.entity.TransitPointEntity;
 import com.fasfood.tripservice.infrastructure.persistence.entity.TripEntity;
 import com.fasfood.tripservice.infrastructure.persistence.mapper.TripEntityMapper;
-import com.fasfood.tripservice.infrastructure.persistence.repository.BusEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TransitPointEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripDetailsEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripEntityRepository;
@@ -57,8 +55,6 @@ public class TripCommandServiceImpl implements TripCommandService {
     private final TripDetailsEntityRepository tripDetailsEntityRepository;
     private final TransitPointCommandService transitPointCommandService;
     private final TransitPointEntityRepository transitPointEntityRepository;
-    private final BusEntityRepository busEntityRepository;
-    //    private final IamClient iamClient;
     private final TripCommandMapper tripCommandMapper;
     private final TripDTOMapper tripDTOMapper;
     private final TripEntityMapper tripEntityMapper;
@@ -131,16 +127,6 @@ public class TripCommandServiceImpl implements TripCommandService {
     @Override
     public TripDetailsDTO createDetails(UUID id, TripDetailsCreateOrUpdateRequest request) {
         Trip found = this.tripRepository.getById(id);
-        this.checkBus(request);
-//        List<String> foundUsers = this.iamClient
-//                .getUsersBysIds(new PagingRequest(1, 2, null, null,
-//                        List.of(request.getDriverId(), request.getAssistantId())))
-//                .getData().stream().map(UserResponse::getId).toList();
-//        if (CollectionUtils.isEmpty(foundUsers)
-//                || !foundUsers.contains(request.getDriverId().toString())
-//                || !foundUsers.contains(request.getAssistantId().toString())) {
-//            throw new ResponseException(NotFoundError.USER_NOT_FOUND);
-//        }
         TripDetailsCreateOrUpdateCmd cmd = this.tripCommandMapper.from(request);
         TripDetails newOne = found.createTripDetail(cmd);
         this.tripRepository.save(found);
@@ -150,7 +136,6 @@ public class TripCommandServiceImpl implements TripCommandService {
     @Override
     public TripDetailsDTO updateDetails(UUID id, UUID detailsId, TripDetailsCreateOrUpdateRequest request) {
         Trip found = this.tripRepository.getById(id);
-        this.checkBus(request);
         TripDetailsCreateOrUpdateCmd cmd = this.tripCommandMapper.from(request);
         TripDetails newOne = found.updateTripDetail(detailsId, cmd);
         this.tripRepository.save(found);
@@ -255,15 +240,5 @@ public class TripCommandServiceImpl implements TripCommandService {
             transitPointMap.put(tripCreator.getCode(), tripRequest);
         });
         return new ArrayList<>(transitPointMap.values());
-    }
-
-    private void checkBus(TripDetailsCreateOrUpdateRequest request) {
-        if (Objects.nonNull(request.getBusId())) {
-            BusEntity foundBus = this.busEntityRepository.findById(request.getBusId())
-                    .orElseThrow(() -> new ResponseException(NotFoundError.BUS_NOT_FOUND, request.getBusId()));
-            if (!request.getType().equals(foundBus.getType())) {
-                throw new ResponseException(BadRequestError.INVALID_BUS_TYPE, foundBus.getType(), request.getType());
-            }
-        }
     }
 }

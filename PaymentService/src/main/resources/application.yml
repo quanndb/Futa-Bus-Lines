@@ -1,0 +1,110 @@
+app:
+  version: v1
+  client:
+    keycloak: ${KEYCLOAK_URL:http://localhost:8888/realms/FasFood}
+  bank:
+    sepay-qr-url: ${SEPAY_QR_URL:https://qr.sepay.vn/img}
+  payos:
+    client-id: ${PAYOS_CLIENT_ID:[payment-client]}
+    api-key: ${PAYOS_API_KEY:[api-key]}
+    checksum-key: ${PAYOS_CHECKSUM_KEY:[checksum-key]}
+    return-url: ${RETURN_URL:http://localhost:3000}
+  security:
+    enable-user: true
+    client:
+      client-id: payment-client
+      client-secret: 254SKNDoimFmL50IOc87g2Hf49XQQXnN
+      grant-type: client_credentials
+
+server:
+  port: 8086
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
+    include-stacktrace: never
+  servlet:
+    context-path: /
+  undertow:
+    accesslog:
+      enabled: true
+    buffer-size: 1024
+    threads:
+      io: 8
+      worker: 256
+    direct-buffers: true
+
+spring:
+  profiles:
+    active: local
+  application:
+    name: payment
+  jpa:
+    database: postgresql
+    open-in-view: false
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/FasFood?currentSchema=payment&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true}
+    username: ${POSTGRES_USER:payment}
+    password: ${POSTGRES_PASSWORD:payment123@}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      enabled: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      compression:
+        request.enabled: true
+        response.enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uris:
+            internal: ${JWK_INTERNAL_URL:http://localhost:8081/api/certificate/.well-known/jwks.json}
+            sso: ${JWK_SSO_URL:http://localhost:8888/realms/FasFood/protocol/openid-connect/certs}
+  data:
+    redis:
+      password: Quandz@@2083
+      port: 6379
+      host: ${REDIS_HOST:localhost}
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URLS:http://localhost:8761/eureka/}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

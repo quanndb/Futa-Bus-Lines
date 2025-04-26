@@ -455,4 +455,8 @@ public final class StrUtils {
         System.arraycopy(suffixes, 0, parts, 1, suffixes.length);
         return String.join(":", parts);
     }
+
+    public static String formatString(String format, Object... args) {
+        return String.format(format, args);
+    }
 }

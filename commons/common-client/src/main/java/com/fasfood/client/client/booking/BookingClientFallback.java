@@ -37,5 +37,12 @@ public class BookingClientFallback implements FallbackFactory<BookingClient> {
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
         }
+
+        @Override
+        public Response<Void> payBooking(String code) {
+            log.error("Notify payed fail case:", this.cause);
+            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
+                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
     }
 }

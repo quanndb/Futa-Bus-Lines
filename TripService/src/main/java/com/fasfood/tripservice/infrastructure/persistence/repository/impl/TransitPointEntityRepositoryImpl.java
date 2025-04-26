@@ -17,6 +17,7 @@ public class TransitPointEntityRepositoryImpl extends AbstractPagingEntityReposi
     protected void createWhereClause(QueryBuilder queryBuilder, TransitPointPagingQuery query) {
         queryBuilder.like(List.of("id", "name", "address", "hotline"), query.getKeyword())
                 .whereIn("type", query.getTypes())
+                .whereIn("id", query.getIds())
                 .where("deleted", false);
     }
 }

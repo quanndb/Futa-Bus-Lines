@@ -3,6 +3,7 @@ package com.fasfood.tripservice.application.dto.request;
 import com.fasfood.common.enums.BusTypeEnum;
 import com.fasfood.tripservice.infrastructure.support.enums.TripOrderBy;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 public class TripFilterRequest {
     @NotNull(message = "DEPARTURE_REQUIRED")
     private UUID departureId;
@@ -20,6 +22,7 @@ public class TripFilterRequest {
     @NotNull(message = "DEPARTURE_DATE_REQUIRED")
     private LocalDate departureDate;
     // optional
+    private List<UUID> detailsIds;
     private FormTimeToTimeRequest departureTime;
     private List<BusTypeEnum> busType;
     private List<TripOrderBy> orderBy;

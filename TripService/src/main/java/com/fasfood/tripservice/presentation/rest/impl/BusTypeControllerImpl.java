@@ -39,4 +39,9 @@ public class BusTypeControllerImpl implements BusTypeController {
     public Response<List<BusTypeDTO>> getAll() {
         return Response.of(this.queryService.getAll());
     }
+
+    @Override
+    public Response<BusTypeDTO> getById(UUID id) {
+        return Response.of(this.queryService.getById(id));
+    }
 }

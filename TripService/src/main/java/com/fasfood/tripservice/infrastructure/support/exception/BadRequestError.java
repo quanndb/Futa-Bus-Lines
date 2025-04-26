@@ -27,7 +27,7 @@ public enum BadRequestError implements ResponseError {
     TRANSIT_TYPE_REQUIRED(4000020, "Transit type is required"),
     EXISTED_TRIP_CODE(4000021, "Trip code already existed: ${0}"),
     NOT_EXISTED_TRANSIT_POINT(4000022, "Transit point not existed: ${0}"),
-    SCHEDULE_ALREADY_EXISTED(4000023, "Schedule already existed: ${0} - ${1}"),
+    SCHEDULE_ALREADY_EXISTED(4000023, "Schedule already existed: ${0}"),
     DEPARTURE_REQUIRED(4000024, "Departure is required"),
     DESTINATION_REQUIRED(4000025, "Destination is required"),
     DEPARTURE_DATE_REQUIRED(4000026, "Departure date is required"),

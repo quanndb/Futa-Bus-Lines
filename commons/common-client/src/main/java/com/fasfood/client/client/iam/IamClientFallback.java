@@ -44,13 +44,6 @@ public class IamClientFallback implements FallbackFactory<IamClient> {
         }
 
         @Override
-        public Response<ClientResponse> getClientToken(ClientRequest clientRequest) {
-            log.error("Get client token fail cause:", this.cause);
-            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
-                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
-        }
-
-        @Override
         public PagingResponse<UserResponse> getUsersBysIds(PagingRequest pagingRequest) {
             log.error("Get users:", this.cause);
             return PagingResponse.of(List.of(), pagingRequest.getPageIndex(), pagingRequest.getPageSize(), 0);

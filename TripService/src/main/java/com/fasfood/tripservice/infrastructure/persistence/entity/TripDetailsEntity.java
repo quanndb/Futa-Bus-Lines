@@ -1,8 +1,8 @@
 package com.fasfood.tripservice.infrastructure.persistence.entity;
 
 import com.fasfood.common.entity.AuditableEntity;
-import com.fasfood.common.validator.ValidateConstraint;
 import com.fasfood.common.enums.BusTypeEnum;
+import com.fasfood.common.validator.ValidateConstraint;
 import com.fasfood.tripservice.infrastructure.support.enums.TripStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -28,21 +28,15 @@ public class TripDetailsEntity extends AuditableEntity {
     @Id
     @Column(name = "id", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
     private UUID id;
-    @Column(name = "from_at", nullable = false)
-    private Instant fromAt;
-    @Column(name = "to_at", nullable = false)
-    private Instant toAt;
-    @Column(name = "driver_id", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
-    private UUID driverId;
-    @Column(name = "assistant_id", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
-    private UUID assistantId;
+    @Column(name = "from_date", nullable = false)
+    private LocalDate fromDate;
+    @Column(name = "to_date", nullable = false)
+    private LocalDate toDate;
     @Column(name = "trip_id", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
     private UUID tripId;
     @Enumerated(EnumType.STRING)
     @Column(name = "type", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
     private BusTypeEnum type;
-    @Column(name = "bus_id", length = ValidateConstraint.LENGTH.ID_MAX_LENGTH, nullable = false)
-    private UUID busId;
     @Column(name = "price", nullable = false)
     private long price;
     @Enumerated(EnumType.STRING)

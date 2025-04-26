@@ -1,15 +1,17 @@
 package com.fasfood.common.query;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
-@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PagingQuery extends Query {
     public static final String ASC_SYMBOL = "ASC";
     public static final String DESC_SYMBOL = "DESC";
@@ -17,5 +19,6 @@ public class PagingQuery extends Query {
     protected int pageSize = 30;
     protected String sortBy;
     protected List<UUID> ids;
+    protected List<UUID> excludedIds;
     private String keyword;
 }

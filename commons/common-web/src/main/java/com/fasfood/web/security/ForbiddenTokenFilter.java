@@ -26,7 +26,6 @@ import java.io.IOException;
 public class ForbiddenTokenFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(ForbiddenTokenFilter.class);
     private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER = "Bearer ";
     private final TokenCacheService tokenCacheService;
     private final ObjectMapper objectMapper;
 
@@ -73,7 +72,7 @@ public class ForbiddenTokenFilter extends OncePerRequestFilter {
 
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        return StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER) ? bearerToken.substring(BEARER.length()) : null;
+        return StringUtils.hasText(bearerToken)? bearerToken.substring(7) : null;
     }
 
     public String extractSid(String token) {

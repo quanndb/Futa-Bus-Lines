@@ -55,6 +55,5 @@ public interface TransitPointController {
 
     @Operation(summary = "Get transit points")
     @GetMapping(value = "")
-    @PreAuthorize("hasPermission(null, 'transit.read')")
     PagingResponse<TransitPointDTO> getList(@ParameterObject TransitPointPagingRequest request);
 }

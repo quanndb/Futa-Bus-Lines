@@ -125,10 +125,13 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String username;
+            String fullName;
             if (StringUtils.hasText(token.getClaimAsString("client_id"))) {
                 username = token.getClaimAsString("client_id");
+                fullName = username;
             } else {
                 username = token.getClaimAsString("email");
+                fullName = token.getClaimAsString("full_name");
             }
 
             User principal = new User(username, "", grantedPermissions);
@@ -136,6 +139,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                     .principal(principal)
                     .userId(UUID.fromString(token.getSubject()))
                     .email(token.getClaimAsString("email"))
+                    .fullName(fullName)
                     .isRoot(isRoot)
                     .isClient(false)
                     .credentials(token.getTokenValue())

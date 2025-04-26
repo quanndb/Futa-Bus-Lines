@@ -137,6 +137,28 @@ public class CellConverter {
         };
     }
 
+    public static Function<Cell, LocalDate> localDateConverter() {
+        return cell -> {
+            if (cell == null) return null;
+
+            if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+                Date date = cell.getDateCellValue();
+                return date.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+            } else if (cell.getCellType() == CellType.STRING) {
+                try {
+                    return LocalDate.parse(cell.getStringCellValue().trim());
+                } catch (DateTimeParseException e) {
+                    // Log nếu cần
+                    return null;
+                }
+            }
+
+            return null;
+        };
+    }
+
     public static Function<Cell, LocalTime> localTimeConverter() {
         return cell -> {
             if (cell == null) return null;

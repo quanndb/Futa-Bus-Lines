@@ -4,11 +4,11 @@ import com.fasfood.common.query.PagingQuery;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class QueryBuilder {
 
@@ -121,6 +121,23 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder whereDate(String column, LocalDate date) {
+        if(date != null) {
+            return whereDate(column, List.of(date));
+        }
+        return whereDate(column, List.of());
+    }
+
+    public QueryBuilder whereDate(String column, List<LocalDate> dates) {
+        if (dates != null && !dates.isEmpty()) {
+            String paramName = String.join("", column.split("\\.")) + "Dates";
+            String condition = "DATE(" + column + ") IN (:" + paramName + ")";
+            this.appendWhereClause(condition);
+            this.parameters.put(paramName, dates);
+        }
+        return this;
+    }
+
     // Add WHERE IN condition
     public <T> QueryBuilder whereIn(String column, List<T> values) {
         if (values != null && !values.isEmpty()) {
@@ -195,33 +212,42 @@ public class QueryBuilder {
     }
 
     // Add ORDER BY clause, defaulting to "id DESC"
-    public QueryBuilder orderBy(String sortBy, String alias) {
-        String sortColumn = this.aliasTableName + "lastModifiedAt";
-        String sortDirection = PagingQuery.DESC_SYMBOL;
+    public QueryBuilder orderBy(List<String> sortBy, String alias) {
+        String defaultSortColumn = this.aliasTableName + "lastModifiedAt";
+        String defaultSortDirection = PagingQuery.DESC_SYMBOL;
+        StringBuilder orderByClause = new StringBuilder(" ORDER BY ");
+        List<String> sortParts = new ArrayList<>();
+        sortParts.add(defaultSortColumn + " " + defaultSortDirection);
+        if (sortBy != null && !sortBy.isEmpty()) {
+            for (String item : sortBy) {
+                if (item == null || item.trim().isEmpty()) continue;
 
-        if (sortBy != null && !sortBy.trim().isEmpty()) {
-            String[] sortClause = sortBy.trim().split("\\.");
+                String[] sortClause = item.trim().split("\\.");
+                if (sortClause.length == 0 || sortClause[0].isEmpty()) continue;
 
-            // Determine the sort column, defaulting to "createdAt" if sortClause[0] is empty
-            if (sortClause.length > 0 && !sortClause[0].isEmpty()) {
-                sortColumn = Objects.isNull(alias) ? this.aliasTableName : alias + sortClause[0];
-            }
-            // Determine the sort direction, defaulting to DESC
-            if (sortClause.length > 1 && PagingQuery.ASC_SYMBOL.equalsIgnoreCase(sortClause[1])) {
-                sortDirection = PagingQuery.ASC_SYMBOL;
+                String column = (alias == null ? this.aliasTableName : alias) + "." + sortClause[0];
+                String direction = (sortClause.length > 1 && PagingQuery.ASC_SYMBOL.equalsIgnoreCase(sortClause[1]))
+                        ? PagingQuery.ASC_SYMBOL
+                        : PagingQuery.DESC_SYMBOL;
+
+                sortParts.add(column + " " + direction);
             }
         }
-
-        // Append the ORDER BY clause to the query
-        this.query.append(" ORDER BY ")
-                .append(sortColumn)
-                .append(" ")
-                .append(sortDirection);
-
+        orderByClause.append(String.join(", ", sortParts));
+        this.query.append(orderByClause);
         return this;
     }
 
+    public QueryBuilder orderBy(String sortBy, String alias) {
+        if (sortBy == null || sortBy.trim().isEmpty()) return this.orderBy(List.of(), alias);
+        return this.orderBy(List.of(sortBy), alias);
+    }
+
     public QueryBuilder orderBy(String sortBy) {
+        return this.orderBy(sortBy, null);
+    }
+
+    public QueryBuilder orderBy(List<String> sortBy) {
         return this.orderBy(sortBy, null);
     }
 

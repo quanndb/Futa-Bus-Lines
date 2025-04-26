@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @FeignClient(
+        url = "${app.clients.storage:}",
         name = "storage",
         contextId = "storage",
         configuration = {FeignClientConfiguration.class},

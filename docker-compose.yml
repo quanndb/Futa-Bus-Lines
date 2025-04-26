@@ -96,6 +96,7 @@ services:
       - JWK_SSO_URL=http://keycloak:8080/realms/FasFood/protocol/openid-connect/certs
       - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
       - KEYCLOAK_URL=http://keycloak:8888/realms/FasFood
+      - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
     networks:
       - fasfood_network
 
@@ -114,6 +115,59 @@ services:
       - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
       - KEYCLOAK_URL=http://keycloak:8888/realms/FasFood
       - BOOTSTRAP_SERVERS=kafka1:9092,kafka2:9093,kafka3:9094
+      - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
+    networks:
+      - fasfood_network
+
+  trip:
+    image: trip:latest
+    build:
+      context: ./TripService
+    restart: always
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_URLS=http://discovery-service:8761/eureka/
+      - REDIS_HOST=redis
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/FasFood?currentSchema=trip&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - JWK_SSO_URL=http://keycloak:8080/realms/FasFood/protocol/openid-connect/certs
+      - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
+      - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
+    networks:
+      - fasfood_network
+
+  booking:
+    image: booking:latest
+    build:
+      context: ./BookingService
+    restart: always
+    ports:
+      - "8085:8085"
+    environment:
+      - EUREKA_URLS=http://discovery-service:8761/eureka/
+      - REDIS_HOST=redis
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/FasFood?currentSchema=booking&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - JWK_SSO_URL=http://keycloak:8080/realms/FasFood/protocol/openid-connect/certs
+      - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
+      - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
+      - BOOTSTRAP_SERVERS=kafka1:9092,kafka2:9093,kafka3:9094
+    networks:
+      - fasfood_network
+
+  payment:
+    image: payment:latest
+    build:
+      context: ./PaymentService
+    restart: always
+    ports:
+      - "8086:8086"
+    environment:
+      - EUREKA_URLS=http://discovery-service:8761/eureka/
+      - REDIS_HOST=redis
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/FasFood?currentSchema=payment&useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - JWK_SSO_URL=http://keycloak:8080/realms/FasFood/protocol/openid-connect/certs
+      - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
+      - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
     networks:
       - fasfood_network
 

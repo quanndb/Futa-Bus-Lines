@@ -9,6 +9,7 @@ com.fasfood.web.security.RegexPermissionEvaluator
 com.fasfood.web.security.impl.RemoteAuthorityServiceImpl
 com.fasfood.web.security.impl.RemoteTokenCacheServiceImpl
 com.fasfood.web.support.CustomAuthenticationEntryPoint
+com.fasfood.web.support.CustomBearTokenResolver
 com.fasfood.web.support.HealthyCheckResource
 com.fasfood.web.support.DataCacher
 com.fasfood.web.support.JsonMapper

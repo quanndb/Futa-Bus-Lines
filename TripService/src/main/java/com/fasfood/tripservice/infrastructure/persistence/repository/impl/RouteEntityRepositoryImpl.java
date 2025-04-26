@@ -6,7 +6,9 @@ import com.fasfood.tripservice.domain.query.RoutePagingQuery;
 import com.fasfood.tripservice.infrastructure.persistence.entity.RouteEntity;
 import com.fasfood.util.QueryBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RouteEntityRepositoryImpl extends AbstractPagingEntityRepository<RouteEntity, RoutePagingQuery, StatisticResponse> {
     protected RouteEntityRepositoryImpl() {
@@ -15,7 +17,12 @@ public class RouteEntityRepositoryImpl extends AbstractPagingEntityRepository<Ro
 
     @Override
     protected void createOrderByClause(QueryBuilder queryBuilder, RoutePagingQuery query) {
-        queryBuilder.orderBy(query.getSortBy(), "p1.").limit(query.getPageIndex(), query.getPageSize());
+        List<String> sortBy = new ArrayList<>();
+        sortBy.add("name.asc");
+        if (Objects.nonNull(query.getSortBy())) {
+            sortBy.add(query.getSortBy());
+        }
+        queryBuilder.orderBy(sortBy, "p1").limit(query.getPageIndex(), query.getPageSize());
     }
 
     @Override

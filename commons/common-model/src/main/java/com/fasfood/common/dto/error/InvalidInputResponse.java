@@ -1,4 +1,4 @@
-package com.fasfood.common.dto.error;//
+package com.fasfood.common.dto.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

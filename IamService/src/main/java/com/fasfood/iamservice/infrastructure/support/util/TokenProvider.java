@@ -50,11 +50,11 @@ public class TokenProvider implements InitializingBean {
         return new JWKSet(builder.build());
     }
 
-    public LoginResponse login(UUID uid, String email) {
+    public LoginResponse login(UUID uid, String email, String fullName) {
         return LoginResponse.builder()
-                .accessToken(this.accessTokenFactory(uid, email, TimeConverter
+                .accessToken(this.accessTokenFactory(uid, email, fullName, TimeConverter
                         .convertToMilliseconds(this.lifeTimeProperties.getAccessTokenLifetime()), TokenType.ACCESS_TOKEN))
-                .refreshToken(this.accessTokenFactory(uid, email, TimeConverter
+                .refreshToken(this.accessTokenFactory(uid, email, fullName, TimeConverter
                         .convertToMilliseconds(this.lifeTimeProperties.getRefreshTokenLifetime()), TokenType.REFRESH_TOKEN))
                 .tokenExpiresIn(this.lifeTimeProperties.getAccessTokenLifetime())
                 .refreshExpiresIn(this.lifeTimeProperties.getRefreshTokenLifetime())
@@ -62,9 +62,9 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
-    public LoginResponse refreshToken(UUID uid, String email, String refreshToken) {
+    public LoginResponse refreshToken(UUID uid, String email, String fullName, String refreshToken) {
         return LoginResponse.builder()
-                .accessToken(this.accessTokenFactory(uid, email, TimeConverter
+                .accessToken(this.accessTokenFactory(uid, email, fullName, TimeConverter
                         .convertToMilliseconds(this.lifeTimeProperties.getAccessTokenLifetime()), TokenType.ACCESS_TOKEN))
                 .refreshToken(refreshToken)
                 .tokenExpiresIn(this.lifeTimeProperties.getAccessTokenLifetime())
@@ -73,13 +73,13 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
-    public String actionToken(UUID uid, String email) {
-        return this.accessTokenFactory(uid, email,
+    public String actionToken(UUID uid, String email, String fullName) {
+        return this.accessTokenFactory(uid, email, fullName,
                 TimeConverter.convertToMilliseconds(this.lifeTimeProperties.getActionTokenLifetime()),
                 TokenType.ACTION_TOKEN);
     }
 
-    private String accessTokenFactory(UUID uid, String email, long lifeTime, TokenType type) {
+    private String accessTokenFactory(UUID uid, String email, String fullName, long lifeTime, TokenType type) {
         // build token
         return Jwts.builder()
                 .subject(uid.toString())
@@ -88,6 +88,7 @@ public class TokenProvider implements InitializingBean {
                 .claim("jti", UUID.randomUUID().toString())
                 .claim("email", email)
                 .claim("type", type.name())
+                .claim("full_name", fullName)
                 .signWith(this.keyPair.getPrivate(), Jwts.SIG.RS256)
                 .compact();
     }

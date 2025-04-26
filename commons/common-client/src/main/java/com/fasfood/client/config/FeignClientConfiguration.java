@@ -7,8 +7,6 @@ import feign.RequestInterceptor;
 import feign.Retryer;
 import feign.codec.ErrorDecoder;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @EnableConfigurationProperties({ClientRequest.class})
 public class FeignClientConfiguration {
-    private static final Logger log = LoggerFactory.getLogger(FeignClientConfiguration.class);
     private final ClientRequest clientRequest;
     private final ClientAuthentication clientAuthentication;
 

@@ -11,6 +11,7 @@ public enum InternalServerError implements ResponseError {
     INVALID_AUTH_CODE(50000005, "Invalid auth code"),
     INVALID_TOKEN(50000006, "Invalid token"),
     UNABLE_TO_SEND_EMAIL(50000007, "Unable to send email"),
+    UNABLE_TO_GET_CLIENT_TOKEN(50000008, "Unable to get client token"),
     ;
 
     private final Integer code;

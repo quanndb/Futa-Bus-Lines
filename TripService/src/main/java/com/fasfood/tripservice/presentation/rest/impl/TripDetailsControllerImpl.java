@@ -1,6 +1,7 @@
 package com.fasfood.tripservice.presentation.rest.impl;
 
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.TripDetailsResponse;
 import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
 import com.fasfood.tripservice.application.service.cmd.TripCommandService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +45,11 @@ public class TripDetailsControllerImpl implements TripDetailsController {
     @Override
     public Response<List<TripDetailsDTO>> getTripDetails(UUID id) {
         return Response.of(this.queryService.tripDetails(id));
+    }
+
+    @Override
+    public Response<TripDetailsResponse> getDetails(UUID id, UUID departureId, UUID arrivalId, LocalDate departureDate) {
+        return Response.of(this.queryService.getTripDetails(id, departureId, arrivalId, departureDate));
     }
 
     @Override

@@ -19,6 +19,7 @@ public class UserAuthenticationCreator {
     private boolean isRoot;
     private boolean isClient;
     private String email;
+    private String fullName;
     private String token;
     private TokenType tokenType;
     private UUID userId;

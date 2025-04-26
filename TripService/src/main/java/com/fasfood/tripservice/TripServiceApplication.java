@@ -11,9 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableFeignClients
 @SpringBootApplication
 public class TripServiceApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(TripServiceApplication.class, args);
     }
-
 }

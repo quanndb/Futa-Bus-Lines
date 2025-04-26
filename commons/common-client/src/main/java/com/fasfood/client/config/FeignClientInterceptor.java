@@ -3,6 +3,8 @@ package com.fasfood.client.config;
 import com.fasfood.client.config.security.ClientAuthentication;
 import com.fasfood.common.dto.request.ClientRequest;
 import com.fasfood.common.dto.response.ClientResponse;
+import com.fasfood.common.error.InternalServerError;
+import com.fasfood.common.exception.ResponseException;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.Getter;
@@ -46,11 +48,14 @@ public class FeignClientInterceptor implements RequestInterceptor {
             }
             String authorization = headers.get(AUTHORIZATION_HEADER);
             if (authorization == null || !authorization.startsWith(TOKEN_TYPE)) {
-                ClientResponse clientToken = this.clientAuthentication.getClientToken(this.clientRequest);
-                if (Objects.nonNull(clientToken)) {
-                    requestTemplate.header(AUTHORIZATION_HEADER, String.join(" ", TOKEN_TYPE, clientToken.getAccessToken()));
+                try{
+                    ClientResponse clientToken = this.clientAuthentication.getClientToken(this.clientRequest);
+                    if (Objects.nonNull(clientToken)) {
+                        requestTemplate.header(AUTHORIZATION_HEADER, String.join(" ", TOKEN_TYPE, clientToken.getAccessToken()));
+                    }
+                } catch (Exception e) {
+                    throw new ResponseException(InternalServerError.INTERNAL_SERVER_ERROR);
                 }
-
             } else {
                 headers.forEach((key, value) -> {
                     if ((!Objects.equals(key, CONTENT_LENGTH_HEADER)

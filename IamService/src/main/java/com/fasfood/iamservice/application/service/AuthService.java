@@ -4,6 +4,7 @@ import com.fasfood.client.client.google.GoogleClient;
 import com.fasfood.client.client.google.GoogleOAuthClient;
 import com.fasfood.client.client.notification.NotificationClient;
 import com.fasfood.common.UserAuthentication;
+import com.fasfood.common.constant.EmailTitleReadModel;
 import com.fasfood.common.dto.request.GetGoogleTokenRequest;
 import com.fasfood.common.dto.request.SendEmailRequest;
 import com.fasfood.common.dto.response.GoogleTokenResponse;
@@ -30,10 +31,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +49,8 @@ import java.util.Objects;
 @EnableConfigurationProperties({GetGoogleTokenRequest.class})
 public class AuthService {
 
+    @Value(value = "${app.client.return-url}")
+    private String RETURN_URL;
     private final AccountEntityRepository accountEntityRepository;
     private final TokenProvider tokenProvider;
     private final TokenCacheService tokenCacheService;
@@ -92,7 +97,7 @@ public class AuthService {
         return this.processLogin(account);
     }
 
-    public void verifyMac() {
+    public RedirectView verifyMac() {
         UserAuthentication authentication = SecurityUtils.getUserAuthentication()
                 .orElseThrow(() -> new ResponseException(AuthenticationError.UNAUTHORISED));
         if (!TokenType.ACTION_TOKEN.equals(authentication.getTokenType())) {
@@ -101,6 +106,7 @@ public class AuthService {
         AccountEntity found = this.accountEntityRepository.findById(authentication.getUserId())
                 .orElseThrow(() -> new ResponseException(BadRequestError.EMAIL_NOT_FOUND));
         this.macCache.put(StrUtils.joinKey(found.getId().toString()), MacAddressUtil.getMacAddress());
+        return new RedirectView(this.RETURN_URL);
     }
 
     public void logout(LogoutRequest logoutRequest) {
@@ -115,7 +121,7 @@ public class AuthService {
         if (!TokenType.REFRESH_TOKEN.equals(userAuthentication.getTokenType())) {
             throw new ResponseException(BadRequestError.MUST_HAVE_REFRESH_TOKEN);
         }
-        return this.tokenProvider.refreshToken(userAuthentication.getUserId(), userAuthentication.getEmail(), refreshToken);
+        return this.tokenProvider.refreshToken(userAuthentication.getUserId(), userAuthentication.getEmail(), userAuthentication.getFullName(), refreshToken);
     }
 
     private LoginResponse processLogin(AccountEntity account) throws JsonProcessingException {
@@ -125,19 +131,16 @@ public class AuthService {
         // MAC check
         if (!this.macCache.hasKey(StrUtils.joinKey(account.getId().toString(), MacAddressUtil.getMacAddress()))) {
             log.error(MacAddressUtil.getMacAddress());
-            var res = this.notificationClient.send(SendEmailRequest.builder()
+            this.notificationClient.send(SendEmailRequest.builder()
                     .to(List.of(account.getEmail()))
-                    .subject("Reset password")
-                    .templateCode("TP-M92LI69YG65")
+                    .subject(EmailTitleReadModel.TWO_FA)
+                    .templateCode("TP-M9WSYJP6K98")
                     .variables(Map.of("name", account.getFullName(),
                             "address", Objects.requireNonNull(MacAddressUtil.getMacAddress()),
-                            "resetLink", this.tokenProvider.actionToken(account.getId(), account.getEmail())))
-                    .build());
-            if (!res.isSuccess()) {
-                throw res.getException();
-            }
+                            "resetLink", this.tokenProvider.actionToken(account.getId(), account.getEmail(), account.getFullName())))
+                    .build()).getData();
             throw new ResponseException(BadRequestError.INVALID_MAC_ADDRESS, MacAddressUtil.getMacAddress());
         }
-        return this.tokenProvider.login(account.getId(), account.getEmail());
+        return this.tokenProvider.login(account.getId(), account.getEmail(), account.getFullName());
     }
 }

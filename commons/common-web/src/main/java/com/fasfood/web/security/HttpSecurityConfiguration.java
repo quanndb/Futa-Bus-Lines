@@ -4,6 +4,7 @@ import com.fasfood.web.config.JwtProperties;
 import com.fasfood.web.config.SpringSecurityAuditorAware;
 import com.fasfood.web.config.StatsTracingFilter;
 import com.fasfood.web.support.CustomAuthenticationEntryPoint;
+import com.fasfood.web.support.CustomBearTokenResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class HttpSecurityConfiguration {
     private final CustomAuthenticationFilter customAuthenticationFilter;
     private final ForbiddenTokenFilter forbiddenTokenFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomBearTokenResolver customBearTokenResolver;
     private final RegexPermissionEvaluator customPermissionEvaluator;
     private final StatsTracingFilter statsTracingFilter;
     private final JwtProperties jwtProperties;
@@ -72,6 +74,7 @@ public class HttpSecurityConfiguration {
                                 "/api/certificate/.well-known/jwks.json",
                                 "/api/*/auth/login",
                                 "/api/*/auth/provider/**",
+                                "/api/*/auth/client-token",
                                 "/api/*/accounts/register",
                                 "/api/*/accounts/forgot-password",
                                 "/swagger-*/**",
@@ -84,10 +87,19 @@ public class HttpSecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/*/routes/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/places/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/trips/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/bus-types/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/transit-points/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/trips-details/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/payment-links").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 );
         http.oauth2ResourceServer((oauth2) -> oauth2
-                .authenticationManagerResolver(this.jwkResolver(this.jwtProperties))).exceptionHandling((exHandling) -> exHandling.authenticationEntryPoint(this.customAuthenticationEntryPoint));
+                        .authenticationManagerResolver(this.jwkResolver(this.jwtProperties))
+                        .bearerTokenResolver(this.customBearTokenResolver)
+                )
+                .exceptionHandling((exHandling) -> exHandling
+                        .authenticationEntryPoint(this.customAuthenticationEntryPoint)
+                );
 
         http.addFilterBefore(this.statsTracingFilter, BearerTokenAuthenticationFilter.class);
         http.addFilterAfter(this.forbiddenTokenFilter, BearerTokenAuthenticationFilter.class);

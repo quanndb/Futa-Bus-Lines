@@ -1,9 +1,9 @@
 package com.fasfood.common.query;
 
-import lombok.experimental.SuperBuilder;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@SuperBuilder
+@NoArgsConstructor
 public abstract class Query implements Serializable {
 }

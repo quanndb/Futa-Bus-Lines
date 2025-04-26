@@ -24,6 +24,6 @@ WORKDIR /app
 COPY ./target/*.jar /app/app.jar
 ADD ./src/main/resources /app/config
 
-EXPOSE 8082
+EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","app.jar","--spring.profiles.active=dev"]

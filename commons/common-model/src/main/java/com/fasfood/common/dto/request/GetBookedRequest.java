@@ -1,5 +1,7 @@
 package com.fasfood.common.dto.request;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetBookedRequest {
+    @NotEmpty(message = "DETAILS_IDS_REQUIRED")
     private List<UUID> detailsIds;
+    @NotNull(message = "START_DATE_REQUIRED")
     private LocalDate startDate;
 }

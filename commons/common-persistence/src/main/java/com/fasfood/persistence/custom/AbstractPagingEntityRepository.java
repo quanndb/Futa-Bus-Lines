@@ -55,10 +55,11 @@ public abstract class AbstractPagingEntityRepository<E extends AuditableEntity, 
     protected void createWhereClause(QueryBuilder queryBuilder, Q query) {
         queryBuilder.like(List.of("id"), query.getKeyword())
                 .whereIn("id", query.getIds())
+                .whereNotIn("id", query.getExcludedIds())
                 .where("deleted", false);
     }
 
     protected void createOrderByClause(QueryBuilder queryBuilder, Q query) {
-        queryBuilder.orderBy(query.getSortBy(), "a").limit(query.getPageIndex(), query.getPageSize());
+        queryBuilder.orderBy(query.getSortBy()).limit(query.getPageIndex(), query.getPageSize());
     }
 }

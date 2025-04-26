@@ -1,13 +1,13 @@
 package com.fasfood.tripservice.infrastructure.persistence.repository.impl;
 
 import com.fasfood.common.dto.response.StatisticResponse;
+import com.fasfood.common.enums.BusTypeEnum;
 import com.fasfood.persistence.custom.AbstractPagingEntityRepository;
 import com.fasfood.tripservice.application.dto.request.FormTimeToTimeRequest;
 import com.fasfood.tripservice.application.dto.request.TripFilterRequest;
 import com.fasfood.tripservice.domain.query.TripPagingQuery;
 import com.fasfood.tripservice.infrastructure.persistence.entity.TripEntity;
 import com.fasfood.tripservice.infrastructure.persistence.repository.custom.CustomTripEntityRepository;
-import com.fasfood.common.enums.BusTypeEnum;
 import com.fasfood.tripservice.infrastructure.support.enums.TripOrderBy;
 import com.fasfood.util.QueryBuilder;
 import jakarta.persistence.EntityManager;
@@ -15,6 +15,8 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.util.CollectionUtils;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +44,7 @@ public class TripEntityRepositoryImpl extends AbstractPagingEntityRepository<Tri
     @Override
     public List<UUID> findTrips(TripFilterRequest filter) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sql = new StringBuilder("SELECT td.id FROM TripDetailsEntity td");
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT td.id FROM TripDetailsEntity td");
         this.createWhereClause(sql, params, filter);
         this.createBusTypeClause(sql, params, filter.getBusType());
         this.createDepartureTimeClause(sql, params, filter.getDepartureTime());
@@ -56,15 +58,21 @@ public class TripEntityRepositoryImpl extends AbstractPagingEntityRepository<Tri
         params.put("departureId", filter.getDepartureId());
         params.put("destinationId", filter.getDestinationId());
         params.put("departureDate", filter.getDepartureDate());
+        params.put("now", Timestamp.from(Instant.now()));
         sql.append(" left join TripEntity t on td.tripId = t.id ");
         sql.append(" left join TripTransitEntity ttDep on ttDep.tripId = t.id");
         sql.append(" left join TripTransitEntity ttDes on ttDes.tripId = t.id");
         sql.append(" left join BusTypeEntity bt on td.type = bt.type ");
-        sql.append(" WHERE t.deleted = false AND td.deleted = false");
+        sql.append(" WHERE t.deleted = false AND td.deleted = false AND ttDep.deleted = false AND ttDes.deleted = false AND bt.deleted = false ");
         sql.append(" AND ttDep.transitPointId = :departureId ");
         sql.append(" AND ttDes.transitPointId = :destinationId ");
+        sql.append(" AND :departureDate BETWEEN DATE(td.fromDate) AND DATE(td.toDate) ");
         sql.append(" AND ttDep.transitOrder < ttDes.transitOrder");
-        sql.append(" AND :departureDate BETWEEN DATE(td.fromAt) AND DATE(td.toAt) ");
+        sql.append(" AND (CAST(:departureDate || ' ' || ttDep.arrivalTime AS timestamp)) > :now");
+        if (!CollectionUtils.isEmpty(filter.getDetailsIds())) {
+            params.put("detailsIds", filter.getDetailsIds());
+            sql.append(" AND td.id IN :detailsIds ");
+        }
     }
 
     private void createDepartureTimeClause(StringBuilder sql, Map<String, Object> params, FormTimeToTimeRequest request) {

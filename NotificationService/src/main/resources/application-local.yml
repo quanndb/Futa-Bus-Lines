@@ -1,0 +1,8 @@
+app:
+  clients:
+    iam: http://localhost:8081
+    storage: http://localhost:8082
+    notification: http://localhost:8083
+    trip: http://localhost:8084
+    booking: http://localhost:8085
+    payment: http://localhost:8086

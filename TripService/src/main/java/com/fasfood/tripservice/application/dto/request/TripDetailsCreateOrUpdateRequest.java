@@ -7,22 +7,18 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.time.LocalDate;
 
 @Getter
 @Setter
 public class TripDetailsCreateOrUpdateRequest extends Request {
     private String tripCode;
     @NotNull(message = "FROM_AT_REQUIRED")
-    private Instant fromAt;
+    private LocalDate fromDate;
     @NotNull(message = "TO_AT_REQUIRED")
-    private Instant toAt;
-    private UUID driverId;
-    private UUID assistantId;
+    private LocalDate toDate;
     @NotNull(message = "BUS_TYPE_REQUIRED")
     private BusTypeEnum type;
-    private UUID busId;
     @NotNull(message = "PRICE_REQUIRED")
     private long price;
     @NotNull(message = "STATUS_REQUIRED")

@@ -36,4 +36,5 @@ public class PagingRequest extends Request {
     protected String sortBy;
     protected String keyword;
     protected List<UUID> ids;
+    protected List<UUID> excludedIds;
 }

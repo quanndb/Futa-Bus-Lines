@@ -3,6 +3,7 @@ package com.fasfood.iamservice.application.service.cmd.impl;
 import com.fasfood.client.client.notification.NotificationClient;
 import com.fasfood.client.client.storage.StorageClient;
 import com.fasfood.common.UserAuthentication;
+import com.fasfood.common.constant.EmailTitleReadModel;
 import com.fasfood.common.dto.request.SendEmailRequest;
 import com.fasfood.common.enums.AccountStatus;
 import com.fasfood.common.enums.TokenType;
@@ -94,16 +95,13 @@ public class AccountCommandServiceImpl implements AccountCommandService {
     public void forgotPassword(String email) throws JsonProcessingException {
         AccountEntity found = this.accountEntityRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseException(NotFoundError.ACCOUNT_NOTFOUND));
-        var res = this.notificationClient.send(SendEmailRequest.builder()
+        this.notificationClient.send(SendEmailRequest.builder()
                 .to(List.of(found.getEmail()))
-                .subject("Reset password")
-                .templateCode("TP-M91KSQ7A06B")
+                .subject(EmailTitleReadModel.RESET_PASSWORD)
+                .templateCode("TP-M9WSVQQX8AV")
                 .variables(Map.of("name", found.getFullName(),
-                        "resetLink", this.tokenProvider.actionToken(found.getId(), found.getEmail())))
-                .build());
-        if(!res.isSuccess()){
-            throw res.getException();
-        }
+                        "resetLink", this.tokenProvider.actionToken(found.getId(), found.getEmail(), found.getFullName())))
+                .build()).getData();
     }
 
     @Override
@@ -136,11 +134,8 @@ public class AccountCommandServiceImpl implements AccountCommandService {
             throw new ResponseException(BadRequestError.INVALID_AVATAR);
         }
         Account found = this.accountRepository.getById(SecurityUtils.getUserId());
-        var files = this.storageClient.upload(List.of(image), true);
-        if(!files.isSuccess()){
-            throw files.getException();
-        }
-        found.updateAvatar(files.getData().getFirst().getPath());
+        var files = this.storageClient.upload(List.of(image), true).getData();
+        found.updateAvatar(files.getFirst().getPath());
         this.accountRepository.saveAll(List.of(found));
         return this.accountDTOMapper.from(found);
     }

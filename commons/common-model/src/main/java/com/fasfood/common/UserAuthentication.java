@@ -25,6 +25,8 @@ public class UserAuthentication extends UsernamePasswordAuthenticationToken {
     @Getter
     private final String email;
     @Getter
+    private final String fullName;
+    @Getter
     private final Set<String> grantedPermissions;
 
     public UserAuthentication(UserAuthenticationCreator creator) {
@@ -33,6 +35,7 @@ public class UserAuthentication extends UsernamePasswordAuthenticationToken {
         this.isClient = creator.isClient();
         this.token = creator.getToken();
         this.email = creator.getEmail();
+        this.fullName = creator.getFullName();
         this.userId = creator.getUserId();
         this.tokenType = creator.getTokenType();
         this.grantedPermissions = CollectionUtils.isEmpty(creator.getAuthorities())

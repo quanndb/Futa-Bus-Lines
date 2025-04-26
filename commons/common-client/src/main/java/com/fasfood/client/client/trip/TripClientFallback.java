@@ -2,6 +2,7 @@ package com.fasfood.client.client.trip;
 
 import com.fasfood.common.dto.response.BusTypeDTO;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.TripDetailsResponse;
 import com.fasfood.common.error.ServiceUnavailableError;
 import com.fasfood.common.exception.ForwardInnerAlertException;
 import com.fasfood.common.exception.ResponseException;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.UUID;
 
 @Component
 @NoArgsConstructor
@@ -29,9 +30,17 @@ public class TripClientFallback implements FallbackFactory<TripClient> {
             this.cause = cause;
         }
 
+
         @Override
-        public Response<List<BusTypeDTO>> getAll() {
-            log.error("Get bus types fails case:", this.cause);
+        public Response<BusTypeDTO> getById(UUID id) {
+            log.error("Get bus type fails case:", this.cause);
+            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
+                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
+
+        @Override
+        public Response<TripDetailsResponse> getDetails(UUID id, UUID departureId, UUID arrivalId, String departureDate) {
+            log.error("Get trip details fails case:", this.cause);
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
         }

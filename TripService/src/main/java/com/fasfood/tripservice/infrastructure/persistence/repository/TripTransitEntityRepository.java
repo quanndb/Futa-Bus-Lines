@@ -23,4 +23,7 @@ public interface TripTransitEntityRepository extends JpaRepository<TripTransitEn
 
     @Query("SELECT a FROM TripTransitEntity a WHERE a.tripId IN :tripIds AND a.deleted = false order by a.transitOrder")
     List<TripTransitEntity> findAllByTripIds(Iterable<UUID> tripIds);
+
+    @Query("SELECT a FROM TripTransitEntity a WHERE a.tripId = :tripId AND a.transitPointId IN :transitIds AND a.deleted = false order by a.transitOrder")
+    List<TripTransitEntity> findAllByTripIdAndTransitIds(UUID tripId, Iterable<UUID> transitIds);
 }

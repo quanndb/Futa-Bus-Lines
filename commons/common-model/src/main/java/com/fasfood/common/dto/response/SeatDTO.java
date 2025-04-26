@@ -6,18 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SeatDTO extends AuditableDTO {
     private UUID id;
-    private UUID busId;
+    private UUID typeId;
     private String seatNumber;
     private BusFloor floor;
 }

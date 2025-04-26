@@ -63,6 +63,7 @@ public class BusTypeCommandServiceImpl implements BusTypeCommandService {
     public void delete(UUID id) {
         BusType found = this.busTypeRepository.getById(id);
         found.delete();
+        this.busTypeCacher.remove(BusTypeCacher.CACHE_NAME);
         this.busTypeRepository.save(found);
     }
 }

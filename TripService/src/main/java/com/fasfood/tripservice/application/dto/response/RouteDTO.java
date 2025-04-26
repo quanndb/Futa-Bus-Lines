@@ -4,13 +4,11 @@ import com.fasfood.common.dto.AuditableDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@SuperBuilder
 @AllArgsConstructor
 public class RouteDTO extends AuditableDTO {
     private UUID id;

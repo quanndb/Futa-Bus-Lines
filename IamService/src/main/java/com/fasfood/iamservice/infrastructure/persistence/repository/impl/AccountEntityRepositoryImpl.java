@@ -51,6 +51,7 @@ public class AccountEntityRepositoryImpl implements CustomEntityRepository<Accou
                 .whereIn("id", query.getIds())
                 .whereIn("status", query.getStatus())
                 .whereIn("gender", query.getGender())
+                .whereNotIn("id", query.getExcludedIds())
                 .where("deleted", false);
     }
 }
