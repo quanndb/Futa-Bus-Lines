@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +58,10 @@ public class BookingRepositoryImpl implements BookingRepository {
                 item.enrichTickets(tickets.get(item.getId()));
             }
         });
-        Map<String, List<BookingWay>> bookingMap = bookingWays.stream().collect(Collectors.groupingBy(BookingWay::getCode));
+        Map<String, List<BookingWay>> bookingMap = new LinkedHashMap<>();
+        bookingWays.forEach(bookingWay -> {
+            bookingMap.computeIfAbsent(bookingWay.getCode(), k -> new ArrayList<>()).add(bookingWay);
+        });
         bookingMap.values().forEach(entities -> {
             if (entities.size() == 1) {
                 bookings.add(new Booking().enrich(entities.getFirst(), null));

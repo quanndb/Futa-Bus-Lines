@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookingProducer {
     public static final String BOOKING_TOPIC = "bookings";
+    public static final String PAYED_BOOKING = "payed-booking";
     public static final String BOOKING_GROUP = "booking-group";
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final JsonMapper jsonMapper;
@@ -20,5 +21,10 @@ public class BookingProducer {
     public void sendBookingMessage(Booking booking) throws JsonProcessingException {
         log.info("Sent message to topic {}", BOOKING_TOPIC);
         this.kafkaTemplate.send(BOOKING_TOPIC, this.jsonMapper.toJson(booking));
+    }
+
+    public void sendPayedBookingMessage(Booking booking) throws JsonProcessingException {
+        log.info("Sent message to topic {}", PAYED_BOOKING);
+        this.kafkaTemplate.send(PAYED_BOOKING, this.jsonMapper.toJson(booking));
     }
 }

@@ -44,7 +44,7 @@ public class TripEntityRepositoryImpl extends AbstractPagingEntityRepository<Tri
     @Override
     public List<UUID> findTrips(TripFilterRequest filter) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sql = new StringBuilder("SELECT DISTINCT td.id FROM TripDetailsEntity td");
+        StringBuilder sql = new StringBuilder("SELECT td.id FROM TripDetailsEntity td");
         this.createWhereClause(sql, params, filter);
         this.createBusTypeClause(sql, params, filter.getBusType());
         this.createDepartureTimeClause(sql, params, filter.getDepartureTime());
@@ -76,11 +76,12 @@ public class TripEntityRepositoryImpl extends AbstractPagingEntityRepository<Tri
     }
 
     private void createDepartureTimeClause(StringBuilder sql, Map<String, Object> params, FormTimeToTimeRequest request) {
-        if (!Objects.isNull(request)) {
-            sql.append(" AND ttDep.arrivalTime between :fromTime AND :toTime ");
-            params.put("fromTime", request.getFromTime());
-            params.put("toTime", request.getToTime());
+        if (Objects.isNull(request) || Objects.isNull(request.getFromTime()) || Objects.isNull(request.getToTime())) {
+            return;
         }
+        sql.append(" AND ttDep.arrivalTime between :fromTime AND :toTime ");
+        params.put("fromTime", request.getFromTime());
+        params.put("toTime", request.getToTime());
     }
 
     private void createBusTypeClause(StringBuilder sql, Map<String, Object> params, List<BusTypeEnum> types) {

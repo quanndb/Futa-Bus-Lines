@@ -3,6 +3,7 @@ package com.fasfood.paymentservice.presentation.rest;
 import com.fasfood.common.dto.request.WebhookRequest;
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.paymentservice.application.dto.request.TransactionPagingRequest;
 import com.fasfood.paymentservice.application.dto.response.TransactionDTO;
 import com.fasfood.paymentservice.application.dto.response.WalletCommandDTO;
@@ -33,5 +34,11 @@ public interface WebHookController {
 
     @Operation(summary = "Get transactions")
     @GetMapping("/transactions")
+    @PreAuthorize("hasPermission(null, 'transaction.read')")
     PagingResponse<TransactionDTO> getTransactions(@ParameterObject TransactionPagingRequest request);
+
+    @Operation(summary = "Get transactions statistics")
+    @GetMapping("/transactions/statistics")
+    @PreAuthorize("hasPermission(null, 'transaction.read')")
+    Response<StatisticResponse> getTransactionsStatistics(@ParameterObject TransactionPagingRequest request);
 }

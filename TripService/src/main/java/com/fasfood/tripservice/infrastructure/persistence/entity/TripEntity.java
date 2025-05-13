@@ -25,6 +25,10 @@ public class TripEntity extends AuditableEntity {
     private UUID id;
     @Column(name = "code", length = ValidateConstraint.LENGTH.CODE_MAX_LENGTH, nullable = false)
     private String code;
+    @Column(name = "name", length = ValidateConstraint.LENGTH.NAME_MAX_LENGTH, nullable = false)
+    private String name;
+    @Column(name = "description", length = ValidateConstraint.LENGTH.DESC_MAX_LENGTH, nullable = false)
+    private String description;
     @Column(name = "deleted", nullable = false)
     private Boolean deleted;
 }

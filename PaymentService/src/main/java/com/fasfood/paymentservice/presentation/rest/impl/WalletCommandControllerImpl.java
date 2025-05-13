@@ -2,6 +2,7 @@ package com.fasfood.paymentservice.presentation.rest.impl;
 
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.paymentservice.application.dto.request.DepositRequest;
 import com.fasfood.common.dto.request.PayRequest;
 import com.fasfood.paymentservice.application.dto.request.WalletCommandPagingRequest;
@@ -33,6 +34,11 @@ public class WalletCommandControllerImpl implements WalletCommandController {
     @Override
     public PagingResponse<WalletCommandDTO> getWalletCommands(WalletCommandPagingRequest request) {
         return PagingResponse.of(this.queryService.getCommands(request));
+    }
+
+    @Override
+    public Response<WalletCommandDTO> getById(UUID id) {
+        return Response.of(this.queryService.getById(id));
     }
 
     @Override
@@ -69,5 +75,10 @@ public class WalletCommandControllerImpl implements WalletCommandController {
     @Override
     public Response<WalletCommandDTO> resolve(UUID id, WalletCommandStatus status) {
         return Response.of(this.commandService.resolve(id, status));
+    }
+
+    @Override
+    public Response<StatisticResponse> getTransactionsStatistics(WalletCommandPagingRequest request) {
+        return Response.of(this.queryService.getStatistic(request));
     }
 }

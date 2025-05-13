@@ -117,8 +117,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             }
 
             Set<SimpleGrantedAuthority> grantedPermissions = new HashSet<>();
+            String role = null;
             if (optionalUserAuthority != null) {
                 isRoot = optionalUserAuthority.getIsRoot();
+                role = optionalUserAuthority.getRole();
                 grantedPermissions = optionalUserAuthority.getGrantedPermissions().stream()
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toSet());
@@ -145,6 +147,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                     .credentials(token.getTokenValue())
                     .authorities(grantedPermissions)
                     .token(token.getTokenValue())
+                    .role(role)
                     .tokenType(TokenType.valueOf(token.getClaimAsString("type")))
                     .build());
 

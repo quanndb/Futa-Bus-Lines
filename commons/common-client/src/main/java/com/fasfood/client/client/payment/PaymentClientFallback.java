@@ -36,7 +36,21 @@ public class PaymentClientFallback implements FallbackFactory<PaymentClient> {
         }
 
         @Override
-        public Response<Object> returnPayment(String orderCode) {
+        public Response<PaymentLinkResponse> createPayment(PayRequest request, String authorization) {
+            log.error("Create payment link fail cause: ", this.cause);
+            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
+                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
+
+        @Override
+        public Response<Object> returnPayment(String orderCode, String authorization) {
+            log.error("Return payment fail cause: ", this.cause);
+            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
+                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
+
+        @Override
+        public Response<Object> returnPayment(String code) {
             log.error("Return payment fail cause: ", this.cause);
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));

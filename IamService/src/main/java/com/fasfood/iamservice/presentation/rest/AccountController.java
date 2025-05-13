@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,7 +55,7 @@ public interface AccountController {
     Response<Void> verifyPassword(@RequestBody @Valid SetPasswordRequest request);
 
     @Operation(summary = "Update profile")
-    @PatchMapping("/me")
+    @PutMapping("/me")
     Response<UpdateAccountResponse> updateProfile(@RequestBody @Valid UpdateProfileRequest request);
 
     @Operation(summary = "Update avatar")
@@ -84,6 +85,10 @@ public interface AccountController {
     @Operation(summary = "Get user authorities")
     @GetMapping("/{id}/authorities")
     Response<UserAuthority> getUserAuthorities(@PathVariable UUID id);
+
+    @Operation(summary = "Get my authorities")
+    @GetMapping("/me/authorities")
+    Response<UserAuthority> getMyAuthorities();
 
     @Operation(summary = "Get profile")
     @GetMapping("/me")

@@ -3,6 +3,7 @@ package com.fasfood.bookingservice.infrastructure.persistence.entity;
 import com.fasfood.bookingservice.infrastructure.support.enums.BookingStatus;
 import com.fasfood.bookingservice.infrastructure.support.enums.BookingType;
 import com.fasfood.common.entity.AuditableEntity;
+import com.fasfood.common.enums.BusTypeEnum;
 import com.fasfood.common.validator.ValidateConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,6 +43,9 @@ public class BookingEntity extends AuditableEntity {
     private BookingType type;
     @Column(name = "payment_link")
     private String paymentLink;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "bus_type", length = ValidateConstraint.LENGTH.ENUM_MAX_LENGTH, nullable = false)
+    private BusTypeEnum busType;
     // user
     @Column(name = "full_name", length = ValidateConstraint.LENGTH.NAME_MAX_LENGTH, nullable = false)
     private String fullName;

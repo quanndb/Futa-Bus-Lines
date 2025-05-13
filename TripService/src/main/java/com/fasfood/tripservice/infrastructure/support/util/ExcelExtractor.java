@@ -6,7 +6,7 @@ import com.fasfood.commonexcel.ExcelUtil;
 import com.fasfood.tripservice.application.dto.request.RouteCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TransitPointCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TripCreator;
-import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsCreateRequest;
 import com.fasfood.tripservice.infrastructure.support.enums.TransitType;
 import com.fasfood.tripservice.infrastructure.support.enums.TripStatus;
 import com.fasfood.tripservice.infrastructure.support.enums.TripTransitType;
@@ -55,20 +55,20 @@ public class ExcelExtractor {
                 ;
     }
 
-    public static ExcelUtil.ExcelMapper<TripDetailsCreateOrUpdateRequest> extractTripDetails() {
-        return ExcelUtil.mapperFor(TripDetailsCreateOrUpdateRequest.class)
+    public static ExcelUtil.ExcelMapper<TripDetailsCreateRequest> extractTripDetails() {
+        return ExcelUtil.mapperFor(TripDetailsCreateRequest.class)
                 .addColumn("Trip code", CellConverter.stringConverter(),
-                        "tripCode", TripDetailsCreateOrUpdateRequest::setTripCode, TripDetailsCreateOrUpdateRequest::getTripCode)
+                        "tripCode", TripDetailsCreateRequest::setTripCode, TripDetailsCreateRequest::getTripCode)
                 .addColumn("From date (yy-mm-dd)", CellConverter.localDateConverter(),
-                        "fromAt", TripDetailsCreateOrUpdateRequest::setFromDate, TripDetailsCreateOrUpdateRequest::getFromDate)
+                        "fromAt", TripDetailsCreateRequest::setFromDate, TripDetailsCreateRequest::getFromDate)
                 .addColumn("To date (yy-mm-dd)", CellConverter.localDateConverter(),
-                        "toAt", TripDetailsCreateOrUpdateRequest::setToDate, TripDetailsCreateOrUpdateRequest::getToDate)
+                        "toAt", TripDetailsCreateRequest::setToDate, TripDetailsCreateRequest::getToDate)
                 .addColumn("Type (SEAT/BED/LIMOUSINE)", CellConverter.enumConverter(BusTypeEnum.class),
-                        "type", TripDetailsCreateOrUpdateRequest::setType, TripDetailsCreateOrUpdateRequest::getType)
+                        "type", TripDetailsCreateRequest::setType, TripDetailsCreateRequest::getType)
                 .addColumn("Price", CellConverter.longConverter(),
-                        "price", TripDetailsCreateOrUpdateRequest::setPrice, TripDetailsCreateOrUpdateRequest::getPrice)
+                        "price", TripDetailsCreateRequest::setPrice, TripDetailsCreateRequest::getPrice)
                 .addColumn("Status (ACTIVE/INACTIVE)", CellConverter.enumConverter(TripStatus.class),
-                        "status", TripDetailsCreateOrUpdateRequest::setStatus, TripDetailsCreateOrUpdateRequest::getStatus)
+                        "status", TripDetailsCreateRequest::setStatus, TripDetailsCreateRequest::getStatus)
                 ;
     }
 }

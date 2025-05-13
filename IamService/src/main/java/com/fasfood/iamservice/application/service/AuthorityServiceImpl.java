@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Primary
 @Component
@@ -30,6 +31,7 @@ public class AuthorityServiceImpl implements AuthorityService {
         UserAuthority res = UserAuthority.builder()
                 .userId(userId)
                 .grantedPermissions(response.getGrantedPermissions())
+                .role(response.getRoles().stream().map(AccountRoleResponse::getName).collect(Collectors.joining(", ")))
                 .isRoot(isRoot)
                 .build();
         this.userAuthoritiesCache.put(res.getUserId(), res);

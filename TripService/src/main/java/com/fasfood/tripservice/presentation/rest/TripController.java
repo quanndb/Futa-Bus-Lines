@@ -2,12 +2,12 @@ package com.fasfood.tripservice.presentation.rest;
 
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.tripservice.application.dto.request.TripCreateOrUpdateRequest;
-import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TripFilterRequest;
 import com.fasfood.tripservice.application.dto.request.TripPagingRequest;
+import com.fasfood.tripservice.application.dto.request.TripTransitListCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDTO;
-import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
 import com.fasfood.tripservice.application.dto.response.TripResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,6 +54,11 @@ public interface TripController {
     @PreAuthorize("hasPermission(null, 'trip.update')")
     Response<TripDTO> update(@PathVariable UUID id, @RequestBody @Valid TripCreateOrUpdateRequest request);
 
+    @Operation(summary = "Update trip")
+    @PostMapping(value = "/{id}/transits")
+    @PreAuthorize("hasPermission(null, 'trip.update')")
+    Response<TripDTO> updateTripTransit(@PathVariable UUID id, @RequestBody @Valid TripTransitListCreateOrUpdateRequest request);
+
     @Operation(summary = "Delete trip")
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasPermission(null, 'trip.delete')")
@@ -69,4 +75,9 @@ public interface TripController {
     @Operation(summary = "Get trip by id")
     @GetMapping(value = "/{id}")
     Response<TripDTO> getById(@PathVariable UUID id);
+
+    @Operation(summary = "Get trip statistics")
+    @GetMapping(value = "/statistics")
+    @PreAuthorize("hasPermission(null, 'trip.read')")
+    Response<List<StatisticResponse>> getTripStatistics(@RequestParam(required = false) Integer year);
 }

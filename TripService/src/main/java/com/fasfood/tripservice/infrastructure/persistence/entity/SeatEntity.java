@@ -35,4 +35,6 @@ public class SeatEntity extends AuditableEntity {
     private BusFloor floor;
     @Column(name = "deleted", nullable = false)
     private Boolean deleted;
+    @Column(name = "seat_order")
+    private Integer seatOrder;
 }

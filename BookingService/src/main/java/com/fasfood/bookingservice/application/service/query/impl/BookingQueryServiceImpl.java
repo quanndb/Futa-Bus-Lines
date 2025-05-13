@@ -9,19 +9,22 @@ import com.fasfood.bookingservice.domain.Booking;
 import com.fasfood.bookingservice.domain.query.BookingPagingQuery;
 import com.fasfood.bookingservice.domain.repository.BookingRepository;
 import com.fasfood.bookingservice.infrastructure.persistence.repository.BookingEntityRepository;
-import com.fasfood.bookingservice.infrastructure.persistence.repository.projection.BookingProjection;
+import com.fasfood.bookingservice.infrastructure.persistence.repository.projection.BookedProjection;
+import com.fasfood.bookingservice.infrastructure.persistence.repository.projection.BookingStatisticProjection;
 import com.fasfood.common.dto.PageDTO;
 import com.fasfood.common.dto.request.GetBookedRequest;
-import com.fasfood.common.error.AuthenticationError;
-import com.fasfood.common.exception.ResponseException;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.web.support.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,20 +50,54 @@ public class BookingQueryServiceImpl implements BookingQueryService {
     @Override
     public PageDTO<BookingDTO> findMyBooking(BookingPagingRequest request) {
         return this.findBooking(this.queryMapper
-                .from(SecurityUtils.getCurrentUser()
-                        .orElseThrow(() -> new ResponseException(AuthenticationError.UNAUTHORISED)), request));
+                .from(SecurityUtils.getUserId(), request));
     }
 
     @Override
     public Map<UUID, List<String>> getBooked(GetBookedRequest request) {
-        List<BookingProjection> booked = this.bookingEntityRepository.getBookedSeats(request.getDetailsIds(), request.getStartDate());
+        List<BookedProjection> booked = this.bookingEntityRepository.getBooked(request);
         if (CollectionUtils.isEmpty(booked)) {
             return new HashMap<>();
         }
         return booked.stream().collect(Collectors.groupingBy(
-                BookingProjection::getTripDetailsId,
-                Collectors.mapping(BookingProjection::getSeatNumber, Collectors.toList())
+                BookedProjection::getTripDetailsId,
+                Collectors.mapping(BookedProjection::getSeatNumber, Collectors.toList())
         ));
+    }
+
+    @Override
+    public List<String> getBooked(UUID detailsId, LocalDate departureDate) {
+        return this.getBooked(new GetBookedRequest(List.of(detailsId), departureDate)).get(detailsId);
+    }
+
+    @Override
+    public List<StatisticResponse> getStatistics(Integer year) {
+        List<BookingStatisticProjection> statistics;
+        List<StatisticResponse> responses = new ArrayList<>();
+        if (Objects.nonNull(year)) {
+            statistics = this.bookingEntityRepository.getCountByMonth(year);
+        } else {
+            statistics = this.bookingEntityRepository.getCountByYear();
+        }
+        for (BookingStatisticProjection projection : statistics) {
+            responses.add(new StatisticResponse(projection.getKey(), projection.getTotal()));
+        }
+        return responses;
+    }
+
+    @Override
+    public List<StatisticResponse> getRevenueStatistics(Integer year) {
+        List<BookingStatisticProjection> statistics;
+        List<StatisticResponse> responses = new ArrayList<>();
+        if (Objects.nonNull(year)) {
+            statistics = this.bookingEntityRepository.getRevenueByMonth(year);
+        } else {
+            statistics = this.bookingEntityRepository.getRevenueByYear();
+        }
+        for (BookingStatisticProjection projection : statistics) {
+            responses.add(new StatisticResponse(projection.getKey(), projection.getTotal()));
+        }
+        return responses;
     }
 
     private PageDTO<BookingDTO> findBooking(BookingPagingQuery query) {
@@ -68,7 +105,6 @@ public class BookingQueryServiceImpl implements BookingQueryService {
         if (count == 0) return PageDTO.empty();
         List<String> codes = this.bookingEntityRepository.searchCode(query);
         List<Booking> data = this.bookingRepository.findAllByIds(codes);
-        data.forEach(entity -> {});
         return PageDTO.of(this.bookingDTOMapper.from(data), query.getPageIndex(), query.getPageSize(), count);
     }
 }

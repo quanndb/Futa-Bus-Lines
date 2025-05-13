@@ -25,6 +25,8 @@ public class UserAuthentication extends UsernamePasswordAuthenticationToken {
     @Getter
     private final String email;
     @Getter
+    private final String role;
+    @Getter
     private final String fullName;
     @Getter
     private final Set<String> grantedPermissions;
@@ -43,6 +45,7 @@ public class UserAuthentication extends UsernamePasswordAuthenticationToken {
                 : creator.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
+        this.role = creator.getRole();
     }
 
     public boolean isRoot() {

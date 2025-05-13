@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
         url = "${app.clients.notification:}",
@@ -19,4 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface NotificationClient {
     @PostMapping(value = "/api/v1/emails")
     Response<Void> send(@RequestBody @Valid SendEmailRequest sendEmailRequest) throws JsonProcessingException;
+
+    @PostMapping(value = "/api/v1/emails")
+    Response<Void> send(@RequestBody @Valid SendEmailRequest sendEmailRequest, @RequestHeader("Authorization") String authorization) throws JsonProcessingException;
 }

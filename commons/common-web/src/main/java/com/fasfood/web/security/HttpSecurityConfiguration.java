@@ -73,7 +73,7 @@ public class HttpSecurityConfiguration {
                                 "/api/public/**",
                                 "/api/certificate/.well-known/jwks.json",
                                 "/api/*/auth/login",
-                                "/api/*/auth/provider/**",
+                                "/api/*/auth/providers/**",
                                 "/api/*/auth/client-token",
                                 "/api/*/accounts/register",
                                 "/api/*/accounts/forgot-password",
@@ -90,7 +90,9 @@ public class HttpSecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/*/bus-types/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/transit-points/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/*/trips-details/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/*/payment-links").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/detail-transits/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/booking-seats**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/booking-seats/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                 );
         http.oauth2ResourceServer((oauth2) -> oauth2

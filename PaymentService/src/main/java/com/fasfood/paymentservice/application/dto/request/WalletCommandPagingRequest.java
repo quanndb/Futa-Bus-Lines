@@ -15,4 +15,6 @@ public class WalletCommandPagingRequest extends PagingRequest {
     private List<WalletAction> actions;
     private List<WalletCommandStatus> statuses;
     private LocalDate transactionDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

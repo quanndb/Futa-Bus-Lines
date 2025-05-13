@@ -2,8 +2,10 @@ package com.fasfood.tripservice.presentation.rest;
 
 import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.dto.response.TripDetailsResponse;
-import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsCreateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
+import com.fasfood.tripservice.application.dto.response.TripDetailsTransitDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -50,21 +52,25 @@ public interface TripDetailsController {
     Response<TripDetailsResponse> getDetails(@PathVariable UUID id, @RequestParam UUID departureId,
                                              @RequestParam UUID arrivalId, @RequestParam LocalDate departureDate);
 
+    @Operation(summary = "Get details transit")
+    @GetMapping(value = "/detail-transits/{id}")
+    Response<TripDetailsTransitDTO> getDetailsTransit(@PathVariable UUID id, @RequestParam LocalDate departureDate);
+
     @Operation(summary = "Create trip details")
     @PostMapping(value = "/trips/{id}/details")
     @PreAuthorize("hasPermission(null, 'trip.create')")
     Response<TripDetailsDTO> createDetails(@PathVariable UUID id,
-                                           @RequestBody @Valid TripDetailsCreateOrUpdateRequest request);
+                                           @RequestBody @Valid TripDetailsCreateRequest request);
 
     @Operation(summary = "Update trip details")
-    @PostMapping(value = "/{id}/details/{detailsId}")
+    @PostMapping(value = "/trips/{id}/details/{detailsId}")
     @PreAuthorize("hasPermission(null, 'trip.create')")
     Response<TripDetailsDTO> updateTripDetails(@PathVariable UUID id,
                                                @PathVariable UUID detailsId,
-                                               @RequestBody @Valid TripDetailsCreateOrUpdateRequest request);
+                                               @RequestBody @Valid TripDetailsUpdateRequest request);
 
     @Operation(summary = "Delete trip details")
-    @DeleteMapping(value = "/{id}/details/{detailsId}")
+    @DeleteMapping(value = "/trips/{id}/details/{detailsId}")
     @PreAuthorize("hasPermission(null, 'trip.delete')")
     Response<Void> deleteTripDetails(@PathVariable UUID id, @PathVariable UUID detailsId);
 }

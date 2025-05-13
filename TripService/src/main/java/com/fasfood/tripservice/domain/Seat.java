@@ -18,12 +18,14 @@ public class Seat extends Domain {
     private UUID typeId;
     private String seatNumber;
     private BusFloor floor;
+    private Integer seatOrder;
 
-    public Seat(UUID typeId, String seatNumber, BusFloor floor) {
+    public Seat(UUID typeId, String seatNumber, BusFloor floor, Integer seatOrder) {
         super();
         this.typeId = typeId;
         this.seatNumber = seatNumber;
         this.floor = floor;
+        this.seatOrder = seatOrder;
     }
 
     public Seat update(String seatNumber) {

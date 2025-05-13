@@ -22,5 +22,6 @@ public class UserAuthenticationCreator {
     private String fullName;
     private String token;
     private TokenType tokenType;
+    private String role;
     private UUID userId;
 }

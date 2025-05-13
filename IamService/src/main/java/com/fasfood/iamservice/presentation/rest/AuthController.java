@@ -31,12 +31,12 @@ public interface AuthController {
     Response<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) throws JsonProcessingException;
 
     @Operation(summary = "Login with google")
-    @GetMapping("/providers/google")
+    @PostMapping("/providers/google")
     Response<LoginResponse> loginWithGoogle(@RequestParam(name = "code") String code) throws JsonProcessingException;
 
     @Operation(summary = "Verify MAC address")
     @PostMapping("/action/mac-verification")
-    Response<RedirectView> verifyMac();
+    Response<Void> verifyMac();
 
     @Operation(summary = "Logout")
     @PostMapping("/logout")

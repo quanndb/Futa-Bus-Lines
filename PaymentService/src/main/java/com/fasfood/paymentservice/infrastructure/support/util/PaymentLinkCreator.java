@@ -20,7 +20,7 @@ public class PaymentLinkCreator {
     private final PayOS payOS;
 
     public String create(WalletCommand cmd) {
-        if (WalletAction.WITH_DRAW.equals(cmd.getAction())) {
+        if (WalletAction.WITHDRAW.equals(cmd.getAction())) {
             return this.createWithdrawLink(cmd);
         }
         if (WalletAction.DEPOSIT.equals(cmd.getAction()) || WalletAction.USING.equals(cmd.getAction())) {
@@ -44,7 +44,7 @@ public class PaymentLinkCreator {
     }
 
     private String createWithdrawLink(WalletCommand cmd) {
-        if (WalletAction.WITH_DRAW.equals(cmd.getAction())) {
+        if (WalletAction.WITHDRAW.equals(cmd.getAction())) {
             return String.format("%s?acc=%s&bank=%s&amount=%s&des=%s", this.sePayQrUrl, cmd.getAccountNumber(), cmd.getBankCode(), cmd.getAmount(), cmd.getCode());
         }
         return null;

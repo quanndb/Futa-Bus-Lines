@@ -15,5 +15,6 @@ import java.util.UUID;
 public class UserAuthority {
     private UUID userId;
     private Boolean isRoot;
+    private String role;
     private List<String> grantedPermissions;
 }

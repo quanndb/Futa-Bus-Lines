@@ -18,4 +18,5 @@ public class SeatDTO extends AuditableDTO {
     private UUID typeId;
     private String seatNumber;
     private BusFloor floor;
+    private Integer seatOrder;
 }

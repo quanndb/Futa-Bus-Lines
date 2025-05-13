@@ -1,11 +1,12 @@
 package com.fasfood.paymentservice.application.service.cmd.impl;
 
 import com.fasfood.client.client.booking.BookingClient;
+import com.fasfood.client.config.security.ClientAuthentication;
 import com.fasfood.common.UserAuthentication;
 import com.fasfood.common.constant.BookingReadModel;
+import com.fasfood.common.dto.request.ClientRequest;
 import com.fasfood.common.dto.request.PayRequest;
 import com.fasfood.common.dto.request.WebhookRequest;
-import com.fasfood.common.exception.ForwardInnerAlertException;
 import com.fasfood.common.exception.ResponseException;
 import com.fasfood.paymentservice.application.dto.mapper.WalletCommandDTOMapper;
 import com.fasfood.paymentservice.application.dto.request.DepositRequest;
@@ -32,6 +33,7 @@ import com.fasfood.paymentservice.infrastructure.support.util.PaymentLinkCreator
 import com.fasfood.web.support.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +43,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@EnableConfigurationProperties({ClientRequest.class})
 public class PaymentCommandServiceImpl implements PaymentCommandService {
 
     private final WalletRepository walletRepository;
@@ -52,6 +55,8 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
     private final PaymentLinkCreator paymentLinkCreator;
     private final BookingClient bookingClient;
     private final PermissionEvaluator permissionEvaluator;
+    private final ClientAuthentication clientAuthentication;
+    private final ClientRequest clientRequest;
 
     @Override
     @Transactional
@@ -85,6 +90,10 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
         Wallet found = this.walletRepository.getByUserId(request.getUserId());
         PayCmd cmd = this.commandMapper.from(request);
         WalletCommand newCommand = found.createPayCommand(cmd, this.createPaymentLinkFn());
+        if(WalletCommandStatus.SUCCESS.equals(newCommand.getStatus())) {
+            this.bookingClient
+                    .payBooking(newCommand.getCode(), String.join(" ", "Bearer", this.clientAuthentication.getClientToken(this.clientRequest).getAccessToken())).getData();
+        }
         this.walletRepository.save(found);
         return this.walletCommandDTOMapper.domainToDTO(newCommand);
     }
@@ -143,11 +152,9 @@ public class PaymentCommandServiceImpl implements PaymentCommandService {
             }
             // pay the booking
             if (request.getCode().startsWith(BookingReadModel.BOOKING_PREFIX)) {
-                try {
-                    this.bookingClient.payBooking(request.getCode()).getData();
-                } catch (ForwardInnerAlertException ignored) {
-                }
-                return this.doCommand(request.getCode(), request.getTransferAmount());
+                var res = this.doCommand(request.getCode(), request.getTransferAmount());
+                this.bookingClient.payBooking(request.getCode());
+                return res;
             }
         }
         return null;

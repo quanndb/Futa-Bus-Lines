@@ -23,6 +23,7 @@ public enum BadRequestError implements ResponseError {
     YOU_ARE_NOT_OWNER_OF_THIS(4000016, "Bạn không phải chủ sở hữu vé này"),
     EXISTED_PAYMENT(4000017, "Đã tồn tại mã thanh toán cho đơn hàng này {0}"),
     OUT_OF_PAY(4000018, "Đơn hàng này đã quá hạn thanh toán"),
+    INVALID_TRIP_DETAILS(4000019, "Chuyến xe không hợp lệ"),
     ;
 
     private final Integer code;

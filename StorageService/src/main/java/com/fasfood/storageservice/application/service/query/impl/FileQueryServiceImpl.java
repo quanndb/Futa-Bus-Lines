@@ -109,7 +109,7 @@ public class FileQueryServiceImpl implements FileQueryService {
             if (Objects.equals(found.getOwnerId(), SecurityUtils.getUserId())) {
                 isAbleToRead = true;
             } else {
-                isAbleToRead = this.permissionEvaluator.hasPermission(userAuthentication, null, "file.view");
+                isAbleToRead = this.permissionEvaluator.hasPermission(userAuthentication, null, "file.read");
             }
             if (!isAbleToRead) {
                 throw new ResponseException(AuthorizationError.ACCESS_DENIED);

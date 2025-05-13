@@ -1,9 +1,9 @@
 package com.fasfood.tripservice.domain;
 
 import com.fasfood.common.domain.Domain;
-import com.fasfood.tripservice.domain.cmd.BusTypeCreateOrUpdateCmd;
 import com.fasfood.common.enums.BusFloor;
 import com.fasfood.common.enums.BusTypeEnum;
+import com.fasfood.tripservice.domain.cmd.BusTypeCreateOrUpdateCmd;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -54,7 +54,9 @@ public class BusType extends Domain {
     private List<Seat> createSeats(List<String> seats, BusFloor floor) {
         if (CollectionUtils.isEmpty(seats)) return List.of();
         List<Seat> seatList = new ArrayList<>();
-        seats.forEach(seat -> seatList.add(new Seat(this.id, seat, floor)));
+        for (int i = 0; i < seats.size(); i++) {
+            seatList.add(new Seat(this.id, seats.get(i), floor, i));
+        }
         return seatList;
     }
 

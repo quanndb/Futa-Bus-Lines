@@ -5,8 +5,10 @@ import com.fasfood.common.dto.request.PayRequest;
 import com.fasfood.common.dto.response.PaymentLinkResponse;
 import com.fasfood.common.dto.response.Response;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
@@ -17,9 +19,15 @@ import org.springframework.web.bind.annotation.RequestParam;
         fallbackFactory = PaymentClientFallback.class
 )
 public interface PaymentClient {
-    @PostMapping("/api/v1/payments")
+    @PostMapping(value = "/api/v1/payment-links", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     Response<PaymentLinkResponse> createPayment(@RequestBody PayRequest request);
 
-    @PostMapping("/api/v1/payments/return")
-    Response<Object> returnPayment(@RequestParam String orderCode);
+    @PostMapping(value = "/api/v1/payment-links", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    Response<PaymentLinkResponse> createPayment(@RequestBody PayRequest request, @RequestHeader("Authorization") String authorization);
+
+    @PostMapping(value = "/api/v1/payment-links/return", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    Response<Object> returnPayment(@RequestParam String code, @RequestHeader("Authorization") String authorization);
+
+    @PostMapping(value = "/api/v1/payment-links/return", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    Response<Object> returnPayment(@RequestParam String code);
 }

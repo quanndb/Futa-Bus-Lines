@@ -14,18 +14,18 @@ import java.util.UUID;
 
 public interface SeatEntityRepository extends JpaRepository<SeatEntity, UUID> {
     @Override
-    @Query("SELECT a FROM SeatEntity a WHERE a.id IN :ids AND a.deleted = false")
+    @Query("SELECT a FROM SeatEntity a WHERE a.id IN :ids AND a.deleted = false ORDER BY a.seatOrder")
     List<SeatEntity> findAllById(@Param("ids") Iterable<UUID> ids);
 
-    @Query("SELECT a FROM SeatEntity a WHERE a.typeId = :typeId AND a.deleted = false")
+    @Query("SELECT a FROM SeatEntity a WHERE a.typeId = :typeId AND a.deleted = false ORDER BY a.seatOrder")
     List<SeatEntity> findAllByTypeId(@Param("typeId") UUID typeId);
 
-    @Query("SELECT a FROM SeatEntity a WHERE a.typeId IN :typeIds AND a.deleted = false")
+    @Query("SELECT a FROM SeatEntity a WHERE a.typeId IN :typeIds AND a.deleted = false ORDER BY a.seatOrder")
     List<SeatEntity> findAllByTypeIds(@Param("typeIds") Iterable<UUID> typeIds);
 
     @Query("SELECT a.seatNumber FROM SeatEntity a " +
             "LEFT JOIN BusTypeEntity bt ON a.typeId = bt.id " +
-            "WHERE bt.type = :typeCode AND a.deleted = false AND bt.deleted = false")
+            "WHERE bt.type = :typeCode AND a.deleted = false AND bt.deleted = false ORDER BY a.seatOrder")
     List<String> findALlSeatsByTypeCode(BusTypeEnum typeCode);
 
     @Override

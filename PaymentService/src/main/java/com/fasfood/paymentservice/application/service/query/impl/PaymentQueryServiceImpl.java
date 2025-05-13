@@ -1,6 +1,8 @@
 package com.fasfood.paymentservice.application.service.query.impl;
 
 import com.fasfood.common.dto.PageDTO;
+import com.fasfood.common.dto.response.StatisticResponse;
+import com.fasfood.common.exception.ResponseException;
 import com.fasfood.paymentservice.application.dto.mapper.TransactionDTOMapper;
 import com.fasfood.paymentservice.application.dto.mapper.WalletCommandDTOMapper;
 import com.fasfood.paymentservice.application.dto.mapper.WalletDTOMapper;
@@ -21,13 +23,15 @@ import com.fasfood.paymentservice.domain.repository.WalletRepository;
 import com.fasfood.paymentservice.infrastructure.persistence.repository.TransactionEntityRepository;
 import com.fasfood.paymentservice.infrastructure.persistence.repository.WalletCommandEntityRepository;
 import com.fasfood.paymentservice.infrastructure.persistence.repository.WalletHistoryEntityRepository;
+import com.fasfood.paymentservice.infrastructure.support.exception.NotFoundError;
 import com.fasfood.paymentservice.infrastructure.support.util.PaymentLinkCreator;
 import com.fasfood.web.support.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -74,8 +78,28 @@ public class PaymentQueryServiceImpl implements PaymentQueryService {
     }
 
     @Override
+    public WalletCommandDTO getById(UUID id) {
+        return this.walletCommandDTOMapper.entityToDTO(this.walletCommandEntityRepository.findById(id)
+                .orElseThrow(() -> new ResponseException(NotFoundError.WALLET_COMMAND_NOTFOUND, id.toString())));
+    }
+
+    @Override
     public PageDTO<TransactionDTO> getTransactions(TransactionPagingRequest request) {
         return this.getTransactions(this.queryMapper.from(request));
+    }
+
+    @Override
+    public StatisticResponse getStatistic(TransactionPagingRequest request) {
+        var res = this.transactionEntityRepository.statistics(this.queryMapper.from(request));
+        if (!CollectionUtils.isEmpty(res)) return res.getFirst();
+        return new StatisticResponse("total", 0L);
+    }
+
+    @Override
+    public StatisticResponse getStatistic(WalletCommandPagingRequest request) {
+        var res = this.walletCommandEntityRepository.statistics(this.queryMapper.from(request));
+        if (!CollectionUtils.isEmpty(res)) return res.getFirst();
+        return new StatisticResponse("total", 0L);
     }
 
     private PageDTO<WalletHistoryDTO> getWalletHistories(WalletHistoryPagingQuery query) {
@@ -85,7 +109,6 @@ public class PaymentQueryServiceImpl implements PaymentQueryService {
         return PageDTO.of(dto, query.getPageIndex(), query.getPageSize(), count);
     }
 
-    @SneakyThrows
     private PageDTO<WalletCommandDTO> getWalletCommands(WalletCommandPagingQuery query) {
         long count = this.walletCommandEntityRepository.count(query);
         if (count == 0) return PageDTO.empty();

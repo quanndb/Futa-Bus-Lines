@@ -2,6 +2,7 @@ package com.fasfood.iamservice.infrastructure.support.util;
 
 import com.fasfood.common.enums.TokenType;
 import com.fasfood.iamservice.application.dto.response.LoginResponse;
+import com.fasfood.iamservice.infrastructure.persistence.entity.AccountEntity;
 import com.fasfood.iamservice.infrastructure.persistence.readmodel.AuthenticationProperties;
 import com.fasfood.iamservice.infrastructure.persistence.readmodel.TokenLifeTimeProperties;
 import com.fasfood.util.TimeConverter;
@@ -50,11 +51,11 @@ public class TokenProvider implements InitializingBean {
         return new JWKSet(builder.build());
     }
 
-    public LoginResponse login(UUID uid, String email, String fullName) {
+    public LoginResponse login(AccountEntity account) {
         return LoginResponse.builder()
-                .accessToken(this.accessTokenFactory(uid, email, fullName, TimeConverter
+                .accessToken(this.accessTokenFactory(account, TimeConverter
                         .convertToMilliseconds(this.lifeTimeProperties.getAccessTokenLifetime()), TokenType.ACCESS_TOKEN))
-                .refreshToken(this.accessTokenFactory(uid, email, fullName, TimeConverter
+                .refreshToken(this.accessTokenFactory(account, TimeConverter
                         .convertToMilliseconds(this.lifeTimeProperties.getRefreshTokenLifetime()), TokenType.REFRESH_TOKEN))
                 .tokenExpiresIn(this.lifeTimeProperties.getAccessTokenLifetime())
                 .refreshExpiresIn(this.lifeTimeProperties.getRefreshTokenLifetime())
@@ -62,9 +63,9 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
-    public LoginResponse refreshToken(UUID uid, String email, String fullName, String refreshToken) {
+    public LoginResponse refreshToken(AccountEntity account, String refreshToken) {
         return LoginResponse.builder()
-                .accessToken(this.accessTokenFactory(uid, email, fullName, TimeConverter
+                .accessToken(this.accessTokenFactory(account, TimeConverter
                         .convertToMilliseconds(this.lifeTimeProperties.getAccessTokenLifetime()), TokenType.ACCESS_TOKEN))
                 .refreshToken(refreshToken)
                 .tokenExpiresIn(this.lifeTimeProperties.getAccessTokenLifetime())
@@ -73,22 +74,22 @@ public class TokenProvider implements InitializingBean {
                 .build();
     }
 
-    public String actionToken(UUID uid, String email, String fullName) {
-        return this.accessTokenFactory(uid, email, fullName,
-                TimeConverter.convertToMilliseconds(this.lifeTimeProperties.getActionTokenLifetime()),
+    public String actionToken(AccountEntity account) {
+        return this.accessTokenFactory(account, TimeConverter.convertToMilliseconds(this.lifeTimeProperties.getActionTokenLifetime()),
                 TokenType.ACTION_TOKEN);
     }
 
-    private String accessTokenFactory(UUID uid, String email, String fullName, long lifeTime, TokenType type) {
+    private String accessTokenFactory(AccountEntity account, long lifeTime, TokenType type) {
         // build token
         return Jwts.builder()
-                .subject(uid.toString())
+                .subject(account.getId().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + lifeTime))
                 .claim("jti", UUID.randomUUID().toString())
-                .claim("email", email)
+                .claim("email", account.getEmail())
                 .claim("type", type.name())
-                .claim("full_name", fullName)
+                .claim("full_name", account.getFullName())
+                .claim("avatar", account.getAvatarUrl())
                 .signWith(this.keyPair.getPrivate(), Jwts.SIG.RS256)
                 .compact();
     }

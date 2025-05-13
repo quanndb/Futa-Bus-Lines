@@ -2,8 +2,10 @@ package com.fasfood.tripservice.presentation.rest.impl;
 
 import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.dto.response.TripDetailsResponse;
-import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsCreateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
+import com.fasfood.tripservice.application.dto.response.TripDetailsTransitDTO;
 import com.fasfood.tripservice.application.service.cmd.TripCommandService;
 import com.fasfood.tripservice.application.service.query.TripQueryService;
 import com.fasfood.tripservice.presentation.rest.TripDetailsController;
@@ -53,12 +55,17 @@ public class TripDetailsControllerImpl implements TripDetailsController {
     }
 
     @Override
-    public Response<TripDetailsDTO> createDetails(UUID id, TripDetailsCreateOrUpdateRequest request) {
+    public Response<TripDetailsTransitDTO> getDetailsTransit(UUID id, LocalDate departureDate) {
+        return Response.of(this.queryService.getTripDetailsTransit(id, departureDate));
+    }
+
+    @Override
+    public Response<TripDetailsDTO> createDetails(UUID id, TripDetailsCreateRequest request) {
         return Response.of(this.commandService.createDetails(id, request));
     }
 
     @Override
-    public Response<TripDetailsDTO> updateTripDetails(UUID id, UUID detailsId, TripDetailsCreateOrUpdateRequest request) {
+    public Response<TripDetailsDTO> updateTripDetails(UUID id, UUID detailsId, TripDetailsUpdateRequest request) {
         return Response.of(this.commandService.updateDetails(id, detailsId, request));
     }
 

@@ -12,6 +12,8 @@ import java.util.List;
 @Setter
 public class TransactionPagingQuery extends PagingQuery {
     private LocalDate transactionDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private List<Long> transactionIds;
     private List<TransferType> transferTypes;
 }

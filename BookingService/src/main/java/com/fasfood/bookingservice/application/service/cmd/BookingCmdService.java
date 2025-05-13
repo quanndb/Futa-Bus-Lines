@@ -6,11 +6,13 @@ import com.fasfood.bookingservice.domain.Booking;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface BookingCmdService {
-    void send(BookingRequest request) throws JsonProcessingException;
+    BookingDTO send(BookingRequest request) throws JsonProcessingException;
 
     BookingDTO consumeBooking(Booking booking);
 
-    void payBooking(String code) throws JsonProcessingException;
+    void payedBooking(String code) throws JsonProcessingException;
+
+    void consumePayedBooking(Booking booking) throws JsonProcessingException;
 
     BookingDTO returnBooking(String code);
 

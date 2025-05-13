@@ -57,13 +57,21 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins:
-              - "http://localhost:3000"
-              - "http://127.0.0.1:5500"
-              - "https://yourfrontend.com"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-            exposedHeaders: "*"
+#            allowedOrigins:
+#              - "http://localhost:3000"
+#              - "http://127.0.0.1:5500"
+#              - "https://yourfrontend.com"
+#              - "https://futabus.netlify.app"
+#              - "https://www.futabus.online"
+#              - "https://www.admin.futabus.online"
+            allowed-origin-patterns:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - "*"
             allowCredentials: true
       default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials

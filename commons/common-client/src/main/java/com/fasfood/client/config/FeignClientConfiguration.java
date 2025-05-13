@@ -3,6 +3,7 @@ package com.fasfood.client.config;
 import com.fasfood.client.config.security.ClientAuthentication;
 import com.fasfood.common.dto.request.ClientRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Logger;
 import feign.RequestInterceptor;
 import feign.Retryer;
 import feign.codec.ErrorDecoder;
@@ -25,7 +26,7 @@ public class FeignClientConfiguration {
 
     @Bean
     feign.Logger.Level feignLoggerLevel() {
-        return feign.Logger.Level.BASIC;
+        return Logger.Level.FULL;
     }
 
     @Bean

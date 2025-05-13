@@ -1,5 +1,6 @@
 package com.fasfood.bookingservice.domain.cmd;
 
+import com.fasfood.common.enums.BusTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,7 @@ public class BookingWayCreateCmd {
     // ticket
     private Long pricePerSeat;
     private List<String> seats;
+    private BusTypeEnum type;
     //enrich
     private String route;
     private UUID departureId;

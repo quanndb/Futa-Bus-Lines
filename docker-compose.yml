@@ -1,18 +1,18 @@
 version: "3.9"
 
 services:
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - ./data/mongo:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=Quandz@@2083
-    networks:
-      - fasfood_network
+#  mongo:
+#    image: mongo
+#    restart: always
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - ./data/mongo:/data/db
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=root
+#      - MONGO_INITDB_ROOT_PASSWORD=Quandz@@2083
+#    networks:
+#      - fasfood_network
 
   postgres:
     image: postgres
@@ -57,7 +57,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./data/logs:/app/logs
+      - ./logs/gateway:/app/logs
     environment:
     - EUREKA_URLS=http://discovery-service:8761/eureka/
     networks:
@@ -70,6 +70,8 @@ services:
     restart: always
     ports:
       - "8081:8081"
+    volumes:
+      - ./logs/iam:/app/logs
     environment:
       - EUREKA_URLS=http://discovery-service:8761/eureka/
       - REDIS_HOST=redis
@@ -77,6 +79,8 @@ services:
       - JWK_SSO_URL=http://keycloak:8080/realms/FasFood/protocol/openid-connect/certs
       - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
       - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
+      - RETURN_URL=https://www.futabus.online
+      - GOOGLE_REDIRECT_URL=https://www.futabus.online
     networks:
       - fasfood_network
 
@@ -89,6 +93,7 @@ services:
       - "8082:8082"
     volumes:
       - ./data/uploads:/app/data/uploads
+      - ./logs/storage:/app/logs
     environment:
       - EUREKA_URLS=http://discovery-service:8761/eureka/
       - REDIS_HOST=redis
@@ -107,6 +112,8 @@ services:
     restart: always
     ports:
       - "8083:8083"
+    volumes:
+      - ./logs/notification:/app/logs
     environment:
       - EUREKA_URLS=http://discovery-service:8761/eureka/
       - REDIS_HOST=redis
@@ -126,6 +133,8 @@ services:
     restart: always
     ports:
       - "8084:8084"
+    volumes:
+      - ./logs/trip:/app/logs
     environment:
       - EUREKA_URLS=http://discovery-service:8761/eureka/
       - REDIS_HOST=redis
@@ -143,6 +152,8 @@ services:
     restart: always
     ports:
       - "8085:8085"
+    volumes:
+      - ./logs/booking:/app/logs
     environment:
       - EUREKA_URLS=http://discovery-service:8761/eureka/
       - REDIS_HOST=redis
@@ -151,6 +162,7 @@ services:
       - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
       - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
       - BOOTSTRAP_SERVERS=kafka1:9092,kafka2:9093,kafka3:9094
+      - RETURN_URL=https://www.futabus.online
     networks:
       - fasfood_network
 
@@ -161,6 +173,8 @@ services:
     restart: always
     ports:
       - "8086:8086"
+    volumes:
+      - ./logs/payment:/app/logs
     environment:
       - EUREKA_URLS=http://discovery-service:8761/eureka/
       - REDIS_HOST=redis
@@ -168,6 +182,7 @@ services:
       - JWK_SSO_URL=http://keycloak:8080/realms/FasFood/protocol/openid-connect/certs
       - JWK_INTERNAL_URL=http://iam:8081/api/certificate/.well-known/jwks.json
       - KEYCLOAK_URL=http://keycloak:8080/realms/FasFood
+      - RETURN_URL=https://www.futabus.online
     networks:
       - fasfood_network
 

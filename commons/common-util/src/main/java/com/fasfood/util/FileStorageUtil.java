@@ -2,6 +2,7 @@ package com.fasfood.util;
 
 import com.fasfood.common.error.BadRequestError;
 import com.fasfood.common.exception.ResponseException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
@@ -21,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 public class FileStorageUtil {
 
     private static final String ROOT_DIR = "./data/uploads";
@@ -74,6 +76,11 @@ public class FileStorageUtil {
     }
 
     public static Resource resizeImage(Path filePath, Integer width, Integer height, Double ratio) throws IOException {
+        String mimeType = Files.probeContentType(filePath);
+        log.error(mimeType);
+        if (width == null && height == null && ratio == null || !mimeType.startsWith("image/")) {
+            return new FileSystemResource(filePath.toFile());
+        }
         BufferedImage originalImage = ImageIO.read(filePath.toFile());
 
         int newWidth = (width != null) ? width : originalImage.getWidth();

@@ -49,7 +49,7 @@ public class WalletCommand extends Domain {
         this.accountNumber = cmd.getAccountNumber();
         this.bankCode = cmd.getBankCode();
         this.status = WalletCommandStatus.WAIT_TO_RESOLVE;
-        this.action = WalletAction.WITH_DRAW;
+        this.action = WalletAction.WITHDRAW;
     }
 
     public WalletCommand(UUID walletId, DepositCmd cmd, UserAuthentication userAuthentication) {

@@ -20,4 +20,12 @@ public class BusTypeDTO extends AuditableDTO {
     private int seatCapacity;
     private List<SeatDTO> firstFloorSeats;
     private List<SeatDTO> secondFloorSeats;
+
+    public BusTypeDTO(BusTypeDTO busTypeDTO) {
+        this.id = busTypeDTO.getId();
+        this.type = busTypeDTO.getType();
+        this.seatCapacity = busTypeDTO.getSeatCapacity();
+        this.firstFloorSeats = busTypeDTO.getFirstFloorSeats();
+        this.secondFloorSeats = busTypeDTO.getSecondFloorSeats();
+    }
 }

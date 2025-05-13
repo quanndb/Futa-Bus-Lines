@@ -147,7 +147,7 @@ public class Wallet extends Domain {
     public WalletCommand doCommand(UUID commandId) {
         for (WalletCommand command : commands) {
             if (commandId.equals(command.getId())) {
-                if (WalletAction.WITH_DRAW.equals(command.getAction())) {
+                if (WalletAction.WITHDRAW.equals(command.getAction())) {
                     this.minusMoney(this.from(command));
                 }
                 if (WalletAction.DEPOSIT.equals(command.getAction())) {
@@ -169,7 +169,7 @@ public class Wallet extends Domain {
             throw new ResponseException(BadRequestError.INSUFFICIENT_BALANCE);
         }
         this.currentBalance -= command.getAmount();
-        this.histories.add(new WalletHistory(this.id, this.currentBalance, WalletAction.WITH_DRAW, command));
+        this.histories.add(new WalletHistory(this.id, this.currentBalance, WalletAction.WITHDRAW, command));
     }
 
     // utils

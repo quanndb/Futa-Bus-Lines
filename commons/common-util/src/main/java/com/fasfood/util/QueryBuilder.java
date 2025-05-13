@@ -160,7 +160,7 @@ public class QueryBuilder {
 
     public QueryBuilder whereTime(String column, Object startValue, Object endValue) {
         if (startValue != null && endValue != null) {
-            String condition = column + " BETWEEN :" + column + "Start AND :" + column + "End";
+            String condition ="DATE("+ column+")" + " BETWEEN :" + column + "Start AND :" + column + "End";
             this.appendWhereClause(condition);
             this.parameters.put(column + "Start", startValue);
             this.parameters.put(column + "End", endValue);
@@ -217,7 +217,6 @@ public class QueryBuilder {
         String defaultSortDirection = PagingQuery.DESC_SYMBOL;
         StringBuilder orderByClause = new StringBuilder(" ORDER BY ");
         List<String> sortParts = new ArrayList<>();
-        sortParts.add(defaultSortColumn + " " + defaultSortDirection);
         if (sortBy != null && !sortBy.isEmpty()) {
             for (String item : sortBy) {
                 if (item == null || item.trim().isEmpty()) continue;
@@ -225,13 +224,15 @@ public class QueryBuilder {
                 String[] sortClause = item.trim().split("\\.");
                 if (sortClause.length == 0 || sortClause[0].isEmpty()) continue;
 
-                String column = (alias == null ? this.aliasTableName : alias) + "." + sortClause[0];
+                String column = (alias == null ? this.aliasTableName : (alias + ".")) + sortClause[0];
                 String direction = (sortClause.length > 1 && PagingQuery.ASC_SYMBOL.equalsIgnoreCase(sortClause[1]))
                         ? PagingQuery.ASC_SYMBOL
                         : PagingQuery.DESC_SYMBOL;
 
                 sortParts.add(column + " " + direction);
             }
+        } else {
+            sortParts.add(defaultSortColumn + " " + defaultSortDirection);
         }
         orderByClause.append(String.join(", ", sortParts));
         this.query.append(orderByClause);

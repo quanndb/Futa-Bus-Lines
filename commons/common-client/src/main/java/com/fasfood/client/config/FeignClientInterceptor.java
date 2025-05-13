@@ -23,8 +23,8 @@ import java.util.Objects;
 public class FeignClientInterceptor implements RequestInterceptor {
     private static final Logger log = LoggerFactory.getLogger(FeignClientInterceptor.class);
     private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String CONTENT_TYPE_HEADER = "Content-Type";
-    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
+    private static final String CONTENT_TYPE_HEADER = "content-type";
+    private static final String CONTENT_LENGTH_HEADER = "content-length";
     private static final String TOKEN_TYPE = "Bearer";
     private ClientAuthentication clientAuthentication;
     private final ClientRequest clientRequest;
@@ -49,6 +49,7 @@ public class FeignClientInterceptor implements RequestInterceptor {
             String authorization = headers.get(AUTHORIZATION_HEADER);
             if (authorization == null || !authorization.startsWith(TOKEN_TYPE)) {
                 try{
+                    log.error("Authorization header is missing, need to get client authentication");
                     ClientResponse clientToken = this.clientAuthentication.getClientToken(this.clientRequest);
                     if (Objects.nonNull(clientToken)) {
                         requestTemplate.header(AUTHORIZATION_HEADER, String.join(" ", TOKEN_TYPE, clientToken.getAccessToken()));
@@ -57,13 +58,15 @@ public class FeignClientInterceptor implements RequestInterceptor {
                     throw new ResponseException(InternalServerError.INTERNAL_SERVER_ERROR);
                 }
             } else {
+                log.error("Has client authentication");
                 headers.forEach((key, value) -> {
-                    if ((!Objects.equals(key, CONTENT_LENGTH_HEADER)
-                            && !Objects.equals(key, CONTENT_TYPE_HEADER))
+                    if ((!Objects.equals(key.toLowerCase(), CONTENT_LENGTH_HEADER)
+                            && !Objects.equals(key.toLowerCase(), CONTENT_TYPE_HEADER))
                             && Objects.nonNull(value)) {
                         requestTemplate.header(key, value);
                     }
                 });
+                log.error("Solved header with client authentication");
             }
         }
     }

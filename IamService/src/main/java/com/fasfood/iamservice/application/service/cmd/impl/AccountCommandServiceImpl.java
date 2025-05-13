@@ -37,6 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -56,6 +57,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountCommandServiceImpl implements AccountCommandService {
 
+    @Value(value = "${app.client.return-url}")
+    private String RETURN_URL;
     private final IamCommandMapper iamCommandMapper;
     private final AccountRepository accountRepository;
     private final AccountEntityRepository accountEntityRepository;
@@ -100,7 +103,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
                 .subject(EmailTitleReadModel.RESET_PASSWORD)
                 .templateCode("TP-M9WSVQQX8AV")
                 .variables(Map.of("name", found.getFullName(),
-                        "resetLink", this.tokenProvider.actionToken(found.getId(), found.getEmail(), found.getFullName())))
+                        "resetLink",String.join("", this.RETURN_URL,"/actions/set-password?token=", this.tokenProvider.actionToken(found))))
                 .build()).getData();
     }
 

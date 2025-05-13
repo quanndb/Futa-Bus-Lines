@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum NotFoundError implements ResponseError {
     NOT_FOUND_BOOKING(4040001, "Booking not found"),
+    TRIP_NOT_FOUND(4040002, "Trip not found"),
     ;
 
     private final Integer code;

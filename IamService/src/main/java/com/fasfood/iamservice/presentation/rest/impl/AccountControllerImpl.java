@@ -16,6 +16,7 @@ import com.fasfood.iamservice.application.service.cmd.AccountCommandService;
 import com.fasfood.iamservice.application.service.query.AccountQueryService;
 import com.fasfood.iamservice.presentation.rest.AccountController;
 import com.fasfood.web.security.AuthorityService;
+import com.fasfood.web.support.SecurityUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
@@ -96,6 +97,11 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public Response<UserAuthority> getUserAuthorities(UUID id) {
         return Response.of(this.authorityService.getUserAuthority(id));
+    }
+
+    @Override
+    public Response<UserAuthority> getMyAuthorities() {
+        return Response.of(this.authorityService.getUserAuthority(SecurityUtils.getUserId()));
     }
 
     @Override

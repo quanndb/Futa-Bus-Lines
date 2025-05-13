@@ -9,5 +9,7 @@ import java.util.List;
 @Setter
 public class TripCreateOrUpdateCmd {
     private String code;
+    private String name;
+    private String description;
     private List<TripTransitCreateOrUpdateCmd> transits;
 }

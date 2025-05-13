@@ -18,7 +18,6 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = false)
@@ -27,6 +26,8 @@ import java.util.UUID;
 @Getter
 public class Trip extends Domain {
     private String code;
+    private String name;
+    private String description;
     private List<TripTransit> tripTransits;
     private List<TripDetails> tripDetails;
 
@@ -34,23 +35,25 @@ public class Trip extends Domain {
     public Trip(TripCreateOrUpdateCmd cmd) {
         super();
         this.code = cmd.getCode();
-        this.tripTransits = this.createTripTransit(cmd.getTransits());
+        this.name = cmd.getName();
+        this.description = cmd.getDescription();
     }
 
     public Trip update(TripCreateOrUpdateCmd cmd) {
         this.code = cmd.getCode();
-        this.tripTransits.forEach(Domain::delete);
-        this.tripTransits.addAll(this.createTripTransit(cmd.getTransits()));
+        this.name = cmd.getName();
+        this.description = cmd.getDescription();
         return this;
     }
 
-    private List<TripTransit> createTripTransit(List<TripTransitCreateOrUpdateCmd> cmds) {
-        if (CollectionUtils.isEmpty(cmds)) return new ArrayList<>();
-        List<TripTransit> tripTransits = new ArrayList<>();
+    public Trip setTripTransit(List<TripTransitCreateOrUpdateCmd> cmds) {
+        if (CollectionUtils.isEmpty(this.tripTransits)) this.tripTransits = new ArrayList<>();
+        else this.tripTransits.forEach(Domain::delete);
+        if (CollectionUtils.isEmpty(cmds)) return this;
         for (int i = 0; i < cmds.size(); i++) {
-            tripTransits.add(new TripTransit(this.id, i, cmds.get(i)));
+            this.tripTransits.add(new TripTransit(this.id, i, cmds.get(i)));
         }
-        return tripTransits;
+        return this;
     }
 
     // assign
@@ -60,16 +63,9 @@ public class Trip extends Domain {
             this.tripDetails.add(newOne);
             return newOne;
         }
-        this.checkDate(cmd.getFromDate(), cmd.getToDate());
-        for (TripDetails details : this.tripDetails) {
-            if (TripStatus.INACTIVE.equals(details.getStatus()) || TripStatus.INACTIVE.equals(cmd.getStatus())) {
-                continue;
-            }
-            if (this.isBetween(details.getFromDate(), details.getToDate(), cmd.getFromDate())) {
-                throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, details.getFromDate() + "-" + details.getToDate());
-            }
-        }
         TripDetails newOne = new TripDetails(this.id, cmd);
+        this.checkAfterFromNow(newOne.getFromDate());
+        this.checkTheSchedule(newOne);
         this.tripDetails.add(newOne);
         return newOne;
     }
@@ -78,24 +74,12 @@ public class Trip extends Domain {
         if (CollectionUtils.isEmpty(this.tripDetails)) {
             throw new ResponseException(NotFoundError.TRIP_DETAILS_NOT_FOUND, id);
         }
-        this.checkDate(cmd.getFromDate(), cmd.getToDate());
-        TripDetails found = null;
-        for (TripDetails details : this.tripDetails) {
-            if (details.getId().equals(id)) {
-                found = details;
-                continue;
-            }
-            if (TripStatus.INACTIVE.equals(details.getStatus()) || TripStatus.INACTIVE.equals(cmd.getStatus())) {
-                continue;
-            }
-            if (this.isBetween(details.getFromDate(), details.getToDate(), cmd.getFromDate())) {
-                throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, details.getFromDate() + "->" + details.getToDate());
-            }
-        }
-        if (Objects.isNull(found)) {
-            throw new ResponseException(NotFoundError.TRIP_DETAILS_NOT_FOUND, id);
-        }
+        TripDetails found = this.tripDetails.stream()
+                .filter(details -> details.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new ResponseException(NotFoundError.TRIP_DETAILS_NOT_FOUND, id));
         found = found.update(cmd);
+        this.checkTheSchedule(found);
         return found;
     }
 
@@ -123,15 +107,29 @@ public class Trip extends Domain {
         this.tripDetails.addAll(details);
     }
 
-    private boolean isBetween(LocalDate from, LocalDate to, LocalDate target) {
-        return (target.equals(from) || target.isAfter(from)) &&
-                (target.equals(to) || target.isBefore(to));
+    private void checkTheSchedule(TripDetails needToCheck) {
+        if (needToCheck.getFromDate().isAfter(needToCheck.getToDate())) {
+            throw new ResponseException(BadRequestError.FROM_MUST_BEFORE_TO, needToCheck.getFromDate() + " - " + needToCheck.getToDate());
+        }
+        if (!CollectionUtils.isEmpty(this.tripDetails) && TripStatus.ACTIVE.equals(needToCheck.getStatus())) {
+            for (TripDetails details : this.tripDetails) {
+                if (TripStatus.ACTIVE.equals(details.getStatus()) && !details.getId().equals(needToCheck.getId())) {
+                    this.checkBetween(details.getFromDate(), details.getToDate(), needToCheck.getFromDate(), needToCheck.getToDate());
+                }
+            }
+        }
     }
 
-    private void checkDate(LocalDate from, LocalDate to) {
-        if (from.isAfter(to)) {
-            throw new ResponseException(BadRequestError.FROM_MUST_BEFORE_TO, from + " - " + to);
+    private void checkBetween(LocalDate from, LocalDate to, LocalDate fromCheck, LocalDate toCheck) {
+        boolean isBetween = ((fromCheck.equals(from) || fromCheck.isAfter(from)) && (fromCheck.equals(to) || fromCheck.isBefore(to)))
+                ||
+                ((toCheck.equals(from) || toCheck.isAfter(from)) && (toCheck.equals(to) || toCheck.isBefore(to)));
+        if (isBetween) {
+            throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, from + "-" + to);
         }
+    }
+
+    private void checkAfterFromNow(LocalDate from) {
         if (LocalDate.now().isAfter(from)) {
             throw new ResponseException(BadRequestError.INVALID_DATE, from);
         }

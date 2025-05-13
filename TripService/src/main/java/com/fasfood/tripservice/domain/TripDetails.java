@@ -36,8 +36,7 @@ public class TripDetails extends Domain {
     }
 
     public TripDetails update(TripDetailsCreateOrUpdateCmd cmd) {
-        this.fromDate = cmd.getFromDate();
-        this.toDate = cmd.getToDate();
+        this.type = cmd.getType();
         this.price = cmd.getPrice();
         this.status = cmd.getStatus();
         return this;

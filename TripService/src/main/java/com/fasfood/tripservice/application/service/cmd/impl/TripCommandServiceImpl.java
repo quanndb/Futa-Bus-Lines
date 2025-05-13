@@ -8,8 +8,10 @@ import com.fasfood.tripservice.application.dto.mapper.TripDetailsDTOMapper;
 import com.fasfood.tripservice.application.dto.request.TransitPointCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TripCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TripCreator;
-import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsCreateRequest;
+import com.fasfood.tripservice.application.dto.request.TripDetailsUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TripTransitCreateOrUpdateRequest;
+import com.fasfood.tripservice.application.dto.request.TripTransitListCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDTO;
 import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
 import com.fasfood.tripservice.application.mapper.TripCommandMapper;
@@ -20,6 +22,7 @@ import com.fasfood.tripservice.domain.Trip;
 import com.fasfood.tripservice.domain.TripDetails;
 import com.fasfood.tripservice.domain.cmd.TripCreateOrUpdateCmd;
 import com.fasfood.tripservice.domain.cmd.TripDetailsCreateOrUpdateCmd;
+import com.fasfood.tripservice.domain.cmd.TripTransitCreateOrUpdateCmd;
 import com.fasfood.tripservice.domain.repository.TripRepository;
 import com.fasfood.tripservice.infrastructure.persistence.entity.TransitPointEntity;
 import com.fasfood.tripservice.infrastructure.persistence.entity.TripEntity;
@@ -28,7 +31,6 @@ import com.fasfood.tripservice.infrastructure.persistence.repository.TransitPoin
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripDetailsEntityRepository;
 import com.fasfood.tripservice.infrastructure.persistence.repository.TripEntityRepository;
 import com.fasfood.tripservice.infrastructure.support.exception.BadRequestError;
-import com.fasfood.tripservice.infrastructure.support.exception.NotFoundError;
 import com.fasfood.tripservice.infrastructure.support.util.ExcelExtractor;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -41,7 +43,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -87,6 +88,15 @@ public class TripCommandServiceImpl implements TripCommandService {
 
     @Override
     @Transactional
+    public TripDTO setTripTransits(UUID id, TripTransitListCreateOrUpdateRequest request) {
+        Trip found = this.tripRepository.getById(id);
+        this.checkTransitPoints(request);
+        List<TripTransitCreateOrUpdateCmd> cmd = this.tripCommandMapper.fromTransits(request.getTransits());
+        return this.tripDTOMapper.domainToDTO(this.tripRepository.save(found.setTripTransit(cmd)));
+    }
+
+    @Override
+    @Transactional
     public void upload(MultipartFile file) {
         List<TripCreator> tripCreators = this.extractTripCreator(file);
         Map<String, UUID> transitPoints = this.transitPointCommandService
@@ -102,7 +112,7 @@ public class TripCommandServiceImpl implements TripCommandService {
 
     @Override
     public void upLoadTripDetails(MultipartFile file) {
-        List<TripDetailsCreateOrUpdateCmd> cmds = this.tripCommandMapper.from(this.extractTripDetails(file));
+        List<TripDetailsCreateOrUpdateCmd> cmds = this.tripCommandMapper.fromDetails(this.extractTripDetails(file));
         Set<String> tripCodes = cmds.stream().map(TripDetailsCreateOrUpdateCmd::getTripCode).collect(Collectors.toSet());
         Map<String, Trip> domains = this.tripEntityRepository.findAllByCode(tripCodes)
                 .stream().collect(Collectors.toMap(TripEntity::getCode, item -> {
@@ -125,7 +135,7 @@ public class TripCommandServiceImpl implements TripCommandService {
     }
 
     @Override
-    public TripDetailsDTO createDetails(UUID id, TripDetailsCreateOrUpdateRequest request) {
+    public TripDetailsDTO createDetails(UUID id, TripDetailsCreateRequest request) {
         Trip found = this.tripRepository.getById(id);
         TripDetailsCreateOrUpdateCmd cmd = this.tripCommandMapper.from(request);
         TripDetails newOne = found.createTripDetail(cmd);
@@ -134,7 +144,7 @@ public class TripCommandServiceImpl implements TripCommandService {
     }
 
     @Override
-    public TripDetailsDTO updateDetails(UUID id, UUID detailsId, TripDetailsCreateOrUpdateRequest request) {
+    public TripDetailsDTO updateDetails(UUID id, UUID detailsId, TripDetailsUpdateRequest request) {
         Trip found = this.tripRepository.getById(id);
         TripDetailsCreateOrUpdateCmd cmd = this.tripCommandMapper.from(request);
         TripDetails newOne = found.updateTripDetail(detailsId, cmd);
@@ -154,6 +164,9 @@ public class TripCommandServiceImpl implements TripCommandService {
                 .ifPresent(tripEntity -> {
                     throw new ResponseException(BadRequestError.EXISTED_TRIP_CODE, request.getCode());
                 });
+    }
+
+    private void checkTransitPoints(TripTransitListCreateOrUpdateRequest request) {
         Set<UUID> transitPointIds = request.getTransits().stream()
                 .map(TripTransitCreateOrUpdateRequest::getTransitPointId).collect(Collectors.toSet());
         List<TransitPointEntity> founds = this.transitPointEntityRepository.findAllById(transitPointIds);
@@ -185,7 +198,7 @@ public class TripCommandServiceImpl implements TripCommandService {
         return result.getValidData();
     }
 
-    private List<TripDetailsCreateOrUpdateRequest> extractTripDetails(MultipartFile file) {
+    private List<TripDetailsCreateRequest> extractTripDetails(MultipartFile file) {
         // Create a mapper for the User class
         var mapper = ExcelExtractor.extractTripDetails();
         // Add validation rules
@@ -197,7 +210,7 @@ public class TripCommandServiceImpl implements TripCommandService {
         mapper.column("Status (ACTIVE/INACTIVE)").addValidationRule(CellValidator.notNull());
 
         // Import from file
-        ExcelUtil.ImportResult<TripDetailsCreateOrUpdateRequest> result = mapper.importFromFile(file, "Trip details", true);
+        ExcelUtil.ImportResult<TripDetailsCreateRequest> result = mapper.importFromFile(file, "Trip details", true);
 
         // Check for validation errors
         if (result.hasErrors()) {

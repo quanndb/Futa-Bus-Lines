@@ -3,8 +3,8 @@ package com.fasfood.client.client.google;
 import com.fasfood.client.config.FeignClientConfiguration;
 import com.fasfood.common.dto.request.GetGoogleTokenRequest;
 import com.fasfood.common.dto.response.GoogleTokenResponse;
-import feign.QueryMap;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -16,6 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
         fallbackFactory = GoogleOAuthClientFallback.class
 )
 public interface GoogleOAuthClient {
-    @PostMapping(value = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    GoogleTokenResponse getToken(@QueryMap GetGoogleTokenRequest request);
+    @PostMapping(value = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    GoogleTokenResponse getToken(@SpringQueryMap GetGoogleTokenRequest request);
 }

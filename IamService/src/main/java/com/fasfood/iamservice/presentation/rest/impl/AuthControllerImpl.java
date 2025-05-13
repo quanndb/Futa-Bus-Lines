@@ -29,13 +29,14 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    public Response<LoginResponse> loginWithGoogle(String authCode) throws JsonProcessingException {
-        return Response.of(this.authService.loginWithGoogle(authCode));
+    public Response<LoginResponse> loginWithGoogle(String code) throws JsonProcessingException {
+        return Response.of(this.authService.loginWithGoogle(code));
     }
 
     @Override
-    public Response<RedirectView> verifyMac() {
-        return Response.of(this.authService.verifyMac());
+    public Response<Void> verifyMac() {
+        this.authService.verifyMac();
+        return Response.ok();
     }
 
     @Override

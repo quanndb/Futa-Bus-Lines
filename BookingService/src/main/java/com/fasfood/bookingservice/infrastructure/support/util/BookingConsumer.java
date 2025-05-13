@@ -20,6 +20,14 @@ public class BookingConsumer {
     @KafkaListener(topics = BookingProducer.BOOKING_TOPIC, groupId = BookingProducer.BOOKING_GROUP)
     public void listenBooking(String message) throws JsonProcessingException {
         Booking received = this.jsonMapper.fromJson(message, Booking.class);
-        log.info("Saved booking: {}", this.cmdService.consumeBooking(received));
+        this.cmdService.consumeBooking(received);
+        log.info("Saved booking: {}", message);
+    }
+
+    @KafkaListener(topics = BookingProducer.PAYED_BOOKING, groupId = BookingProducer.BOOKING_GROUP)
+    public void listenPayedBooking(String message) throws JsonProcessingException {
+        Booking received = this.jsonMapper.fromJson(message, Booking.class);
+        this.cmdService.consumePayedBooking(received);
+        log.info("Saved payed booking: {}", message);
     }
 }

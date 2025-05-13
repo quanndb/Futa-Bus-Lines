@@ -5,6 +5,7 @@ import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.error.ServiceUnavailableError;
 import com.fasfood.common.exception.ForwardInnerAlertException;
 import com.fasfood.common.exception.ResponseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,13 @@ public class NotificationClientFallback implements FallbackFactory<NotificationC
 
         @Override
         public Response<Void> send(SendEmailRequest sendEmailRequest) {
+            log.error("Send email fail cause: ", this.cause);
+            return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
+                    : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));
+        }
+
+        @Override
+        public Response<Void> send(SendEmailRequest sendEmailRequest, String authorization) throws JsonProcessingException {
             log.error("Send email fail cause: ", this.cause);
             return this.cause instanceof ForwardInnerAlertException ? Response.fail((RuntimeException) this.cause)
                     : Response.fail(new ResponseException(ServiceUnavailableError.SERVICE_UNAVAILABLE_ERROR));

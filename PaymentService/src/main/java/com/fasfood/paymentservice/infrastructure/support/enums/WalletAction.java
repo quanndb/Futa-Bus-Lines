@@ -1,7 +1,7 @@
 package com.fasfood.paymentservice.infrastructure.support.enums;
 
 public enum WalletAction {
-    WITH_DRAW,
+    WITHDRAW,
     DEPOSIT,
     USING,
     RETURN

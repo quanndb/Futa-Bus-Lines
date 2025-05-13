@@ -3,6 +3,7 @@ package com.fasfood.paymentservice.presentation.rest.impl;
 import com.fasfood.common.dto.request.WebhookRequest;
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.paymentservice.application.dto.request.TransactionPagingRequest;
 import com.fasfood.paymentservice.application.dto.response.TransactionDTO;
 import com.fasfood.paymentservice.application.dto.response.WalletCommandDTO;
@@ -24,6 +25,11 @@ public class WebHookControllerImpl implements WebHookController {
     @Override
     public PagingResponse<TransactionDTO> getTransactions(TransactionPagingRequest request) {
         return PagingResponse.of(this.queryService.getTransactions(request));
+    }
+
+    @Override
+    public Response<StatisticResponse> getTransactionsStatistics(TransactionPagingRequest request) {
+        return PagingResponse.of(this.queryService.getStatistic(request));
     }
 
     @Override

@@ -2,6 +2,7 @@ app:
   version: v1
   client:
     keycloak: ${KEYCLOAK_URL:http://localhost:8888/realms/FasFood}
+    return-url: ${RETURN_URL:http://localhost:3000}
   security:
     enable-user: true
     client:

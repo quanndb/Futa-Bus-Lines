@@ -6,6 +6,7 @@ import com.fasfood.bookingservice.infrastructure.support.enums.BookingStatus;
 import com.fasfood.bookingservice.infrastructure.support.enums.BookingType;
 import com.fasfood.bookingservice.infrastructure.support.exception.BadRequestError;
 import com.fasfood.common.domain.Domain;
+import com.fasfood.common.enums.BusTypeEnum;
 import com.fasfood.common.exception.ResponseException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class BookingWay extends Domain {
     private BookingType type;
     private int numOfTickets;
     private String paymentLink;
+    private BusTypeEnum busType;
     // user
     private String fullName;
     private String email;
@@ -82,6 +84,7 @@ public class BookingWay extends Domain {
         this.destination = wayCmd.getDestination();
         this.destinationAddress = wayCmd.getDestinationAddress();
         this.destinationTime = wayCmd.getDestinationTime();
+        this.busType = wayCmd.getType();
         // ticket
         this.pricePerSeat = wayCmd.getPricePerSeat();
         this.tickets = this.createTicket(wayCmd.getSeats());

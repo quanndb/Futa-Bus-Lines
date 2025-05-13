@@ -40,7 +40,7 @@ public class WebConfiguration implements ServletContextInitializer, WebMvcConfig
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(Collections.singletonList("*"));
         config.setAllowedHeaders(List.of("*")); // Cho phép tất cả headers
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("*"));
         config.setExposedHeaders(List.of("*")); // Expose tất cả headers
         config.setAllowCredentials(true);
 

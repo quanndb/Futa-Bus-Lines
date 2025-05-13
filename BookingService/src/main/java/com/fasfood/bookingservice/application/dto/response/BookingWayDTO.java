@@ -3,6 +3,7 @@ package com.fasfood.bookingservice.application.dto.response;
 import com.fasfood.bookingservice.infrastructure.support.enums.BookingStatus;
 import com.fasfood.bookingservice.infrastructure.support.enums.BookingType;
 import com.fasfood.common.dto.AuditableDTO;
+import com.fasfood.common.enums.BusTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ public class BookingWayDTO extends AuditableDTO {
     private BookingType type;
     private int numOfTickets;
     private String paymentLink;
+    private BusTypeEnum busType;
     // user
     private String fullName;
     private String email;

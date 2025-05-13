@@ -3,6 +3,7 @@ package com.fasfood.paymentservice.presentation.rest;
 import com.fasfood.common.dto.request.PayRequest;
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.paymentservice.application.dto.request.DepositRequest;
 import com.fasfood.paymentservice.application.dto.request.WalletCommandPagingRequest;
 import com.fasfood.paymentservice.application.dto.request.WithDrawCreateOrUpdateRequest;
@@ -38,6 +39,11 @@ public interface WalletCommandController {
     @PreAuthorize("hasPermission(null, 'wallets.read')")
     PagingResponse<WalletCommandDTO> getWalletCommands(@ParameterObject WalletCommandPagingRequest request);
 
+    @Operation(summary = "Get withdraw command by id")
+    @GetMapping("/wallet-commands/{id}")
+    @PreAuthorize("hasPermission(null, 'wallets.read')")
+    Response<WalletCommandDTO> getById(@PathVariable UUID id);
+
     @Operation(summary = "Create withdraw command")
     @PostMapping("/withdraws")
     Response<WalletCommandDTO> create(@RequestBody @Valid WithDrawCreateOrUpdateRequest request);
@@ -47,12 +53,13 @@ public interface WalletCommandController {
     Response<WalletCommandDTO> create(@RequestBody @Valid DepositRequest request);
 
     @Operation(summary = "Create payment")
-    @PostMapping("/payments")
-    @PreAuthorize("hasPermission(null, 'client.update')")
+    @PostMapping("/payment-links")
+//    @PreAuthorize("hasPermission(null, 'client.update')")
     Response<WalletCommandDTO> createPayment(@RequestBody @Valid PayRequest request);
 
     @Operation(summary = "Return payment")
-    @PostMapping("/payments/return")
+    @PostMapping("/payment-links/return")
+//    @PreAuthorize("hasPermission(null, 'client.update')")
     Response<WalletCommandDTO> returnPayment(@RequestParam String code);
 
     @Operation(summary = "Update command")
@@ -67,4 +74,9 @@ public interface WalletCommandController {
     @PatchMapping("/wallet-commands/{id}")
     @PreAuthorize("hasPermission(null, 'wallets.update')")
     Response<WalletCommandDTO> resolve(@PathVariable UUID id, @RequestParam WalletCommandStatus status);
+
+    @Operation(summary = "Get transactions statistics")
+    @GetMapping("/wallet-commands/statistics")
+    @PreAuthorize("hasPermission(null, 'wallets.read')")
+    Response<StatisticResponse> getTransactionsStatistics(@ParameterObject WalletCommandPagingRequest request);
 }

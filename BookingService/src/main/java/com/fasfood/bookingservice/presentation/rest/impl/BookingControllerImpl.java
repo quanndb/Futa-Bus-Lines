@@ -9,10 +9,12 @@ import com.fasfood.bookingservice.presentation.rest.BookingController;
 import com.fasfood.common.dto.request.GetBookedRequest;
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,9 +27,8 @@ public class BookingControllerImpl implements BookingController {
     private final BookingQueryService bookingQueryService;
 
     @Override
-    public Response<Void> send(BookingRequest request) throws JsonProcessingException {
-        this.bookingCmdService.send(request);
-        return Response.ok();
+    public Response<BookingDTO> send(BookingRequest request) throws JsonProcessingException {
+        return Response.of(this.bookingCmdService.send(request));
     }
 
     @Override
@@ -43,7 +44,7 @@ public class BookingControllerImpl implements BookingController {
 
     @Override
     public Response<Void> payBooking(String code) throws JsonProcessingException {
-        this.bookingCmdService.payBooking(code);
+        this.bookingCmdService.payedBooking(code);
         return Response.ok();
     }
 
@@ -65,5 +66,20 @@ public class BookingControllerImpl implements BookingController {
     @Override
     public Response<Map<UUID, List<String>>> getBookingSeats(GetBookedRequest request) {
         return Response.of(this.bookingQueryService.getBooked(request));
+    }
+
+    @Override
+    public Response<List<String>> getBookedSeats(UUID detailsId, LocalDate departureDate) {
+        return Response.of(this.bookingQueryService.getBooked(detailsId, departureDate));
+    }
+
+    @Override
+    public Response<List<StatisticResponse>> getBookingStatistics(Integer year) {
+        return Response.of(this.bookingQueryService.getStatistics(year));
+    }
+
+    @Override
+    public Response<List<StatisticResponse>> getBookingRevenueStatistics(Integer year) {
+        return Response.of(this.bookingQueryService.getRevenueStatistics(year));
     }
 }

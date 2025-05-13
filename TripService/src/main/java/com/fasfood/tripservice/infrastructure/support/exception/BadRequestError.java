@@ -36,6 +36,8 @@ public enum BadRequestError implements ResponseError {
     FROM_MUST_BEFORE_TO(4000029, "From must before to: ${0}"),
     INVALID_DATE(4000030, "Invalid date: ${0}"),
     NOT_EXISTED_TRIP_CODE(4000031, "Trip code not existed: ${0}"),
+    TRIP_NAME_REQUIRED(4000032, "Trip name is required"),
+    TRIP_TRANSITS_REQUIRED(4000033, "Trip transports is required"),
     ;
 
 

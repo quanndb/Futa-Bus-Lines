@@ -45,7 +45,7 @@ public interface FileController {
 
     @GetMapping("/{fileId}/info")
     @Operation(summary = "Get file information")
-    @PreAuthorize("hasPermission(null, 'file.view')")
+    @PreAuthorize("hasPermission(null, 'file.read')")
     Response<FileResponse> getFileInfo(@PathVariable UUID fileId);
 
     @DeleteMapping("/{fileId}")

@@ -2,12 +2,12 @@ package com.fasfood.tripservice.presentation.rest.impl;
 
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
+import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.tripservice.application.dto.request.TripCreateOrUpdateRequest;
-import com.fasfood.tripservice.application.dto.request.TripDetailsCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.request.TripFilterRequest;
 import com.fasfood.tripservice.application.dto.request.TripPagingRequest;
+import com.fasfood.tripservice.application.dto.request.TripTransitListCreateOrUpdateRequest;
 import com.fasfood.tripservice.application.dto.response.TripDTO;
-import com.fasfood.tripservice.application.dto.response.TripDetailsDTO;
 import com.fasfood.tripservice.application.dto.response.TripResponse;
 import com.fasfood.tripservice.application.service.cmd.TripCommandService;
 import com.fasfood.tripservice.application.service.query.TripQueryService;
@@ -57,6 +57,11 @@ public class TripControllerImpl implements TripController {
     }
 
     @Override
+    public Response<TripDTO> updateTripTransit(UUID id, TripTransitListCreateOrUpdateRequest request) {
+        return Response.of(this.commandService.setTripTransits(id, request));
+    }
+
+    @Override
     public Response<Void> delete(UUID id) {
         this.commandService.delete(id);
         return Response.ok();
@@ -75,5 +80,10 @@ public class TripControllerImpl implements TripController {
     @Override
     public Response<TripDTO> getById(UUID id) {
         return Response.of(this.queryService.getById(id));
+    }
+
+    @Override
+    public Response<List<StatisticResponse>> getTripStatistics(Integer year) {
+        return Response.of(this.queryService.getTripStatistics(year));
     }
 }
