@@ -1,4 +1,4 @@
-package com.fasfood.web.support;
+package com.fasfood.client.support;
 
 import com.fasfood.common.error.InternalServerError;
 import com.fasfood.common.exception.ResponseException;

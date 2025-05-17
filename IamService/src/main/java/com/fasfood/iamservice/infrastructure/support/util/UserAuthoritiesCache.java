@@ -2,8 +2,8 @@ package com.fasfood.iamservice.infrastructure.support.util;
 
 import com.fasfood.common.UserAuthority;
 import com.fasfood.util.StrUtils;
-import com.fasfood.web.support.Cacher;
-import com.fasfood.web.support.DataCacher;
+import com.fasfood.client.support.Cacher;
+import com.fasfood.client.support.DataCacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,8 +1,8 @@
 package com.fasfood.tripservice.infrastructure.support.util;
 
 import com.fasfood.tripservice.application.dto.response.BusTypeResponse;
-import com.fasfood.web.support.Cacher;
-import com.fasfood.web.support.DataCacher;
+import com.fasfood.client.support.Cacher;
+import com.fasfood.client.support.DataCacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package com.fasfood.web.support;
+package com.fasfood.client.support;
 
 import java.time.Duration;
 

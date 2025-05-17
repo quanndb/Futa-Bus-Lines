@@ -3,8 +3,8 @@ package com.fasfood.bookingservice.infrastructure.support.util;
 import com.fasfood.bookingservice.infrastructure.support.exception.BadRequestError;
 import com.fasfood.common.dto.response.TripDetailsResponse;
 import com.fasfood.common.exception.ResponseException;
-import com.fasfood.web.support.Cacher;
-import com.fasfood.web.support.DataCacher;
+import com.fasfood.client.support.Cacher;
+import com.fasfood.client.support.DataCacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

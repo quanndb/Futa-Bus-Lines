@@ -11,9 +11,9 @@ import com.fasfood.iamservice.application.dto.response.LoginResponse;
 import com.fasfood.iamservice.application.service.AuthService;
 import com.fasfood.iamservice.presentation.rest.AuthController;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,18 +24,18 @@ public class AuthControllerImpl implements AuthController {
     private static final String CLIENT_CREDENTIALS = "client_credentials";
 
     @Override
-    public Response<LoginResponse> login(LoginRequest loginRequest) throws JsonProcessingException {
-        return Response.of(this.authService.login(loginRequest));
+    public Response<LoginResponse> login(LoginRequest loginRequest, HttpServletRequest request) throws JsonProcessingException {
+        return Response.of(this.authService.login(loginRequest, request));
     }
 
     @Override
-    public Response<LoginResponse> loginWithGoogle(String code) throws JsonProcessingException {
-        return Response.of(this.authService.loginWithGoogle(code));
+    public Response<LoginResponse> loginWithGoogle(String code, HttpServletRequest request) throws JsonProcessingException {
+        return Response.of(this.authService.loginWithGoogle(code, request));
     }
 
     @Override
-    public Response<Void> verifyMac() {
-        this.authService.verifyMac();
+    public Response<Void> verifyMac(HttpServletRequest request) {
+        this.authService.verifyMac(request);
         return Response.ok();
     }
 

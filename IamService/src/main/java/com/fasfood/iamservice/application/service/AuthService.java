@@ -20,14 +20,15 @@ import com.fasfood.iamservice.application.dto.response.LoginResponse;
 import com.fasfood.iamservice.infrastructure.persistence.entity.AccountEntity;
 import com.fasfood.iamservice.infrastructure.persistence.repository.AccountEntityRepository;
 import com.fasfood.iamservice.infrastructure.support.exception.BadRequestError;
-import com.fasfood.iamservice.infrastructure.support.util.MacCache;
+import com.fasfood.iamservice.infrastructure.support.util.IPCache;
 import com.fasfood.iamservice.infrastructure.support.util.TokenProvider;
 import com.fasfood.util.IdUtils;
-import com.fasfood.util.MacAddressUtil;
+import com.fasfood.util.IpAddressUtil;
 import com.fasfood.util.StrUtils;
 import com.fasfood.web.security.TokenCacheService;
 import com.fasfood.web.support.SecurityUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,14 +53,14 @@ public class AuthService {
     private final AccountEntityRepository accountEntityRepository;
     private final TokenProvider tokenProvider;
     private final TokenCacheService tokenCacheService;
-    private final MacCache macCache;
+    private final IPCache IPCache;
     private final PasswordEncoder passwordEncoder;
     private final GoogleClient googleClient;
     private final GoogleOAuthClient googleOAuthClient;
     private final NotificationClient notificationClient;
     private final GetGoogleTokenRequest getGoogleTokenRequest;
 
-    public LoginResponse login(LoginRequest loginRequest) throws JsonProcessingException {
+    public LoginResponse login(LoginRequest loginRequest, HttpServletRequest request) throws JsonProcessingException {
         AccountEntity found = this.accountEntityRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseException(BadRequestError.EMAIL_NOT_FOUND));
         if (!AccountStatus.ACTIVE.equals(found.getStatus())) {
@@ -68,10 +69,10 @@ public class AuthService {
         if (!this.passwordEncoder.matches(loginRequest.getPassword(), found.getPassword())) {
             throw new ResponseException(BadRequestError.WRONG_PASSWORD);
         }
-        return this.processLogin(found);
+        return this.processLogin(found, request);
     }
 
-    public LoginResponse loginWithGoogle(String code) throws JsonProcessingException {
+    public LoginResponse loginWithGoogle(String code, HttpServletRequest request) throws JsonProcessingException {
         this.getGoogleTokenRequest.setCode(code);
         GoogleTokenResponse response = this.googleOAuthClient.getToken(this.getGoogleTokenRequest);
         if (Objects.isNull(response)) {
@@ -91,10 +92,10 @@ public class AuthService {
                         .status(AccountStatus.ACTIVE)
                         .deleted(false)
                         .build()));
-        return this.processLogin(account);
+        return this.processLogin(account, request);
     }
 
-    public void verifyMac() {
+    public void verifyMac(HttpServletRequest request) {
         UserAuthentication authentication = SecurityUtils.getUserAuthentication()
                 .orElseThrow(() -> new ResponseException(AuthenticationError.UNAUTHORISED));
         if (!TokenType.ACTION_TOKEN.equals(authentication.getTokenType())) {
@@ -102,7 +103,7 @@ public class AuthService {
         }
         AccountEntity found = this.accountEntityRepository.findById(authentication.getUserId())
                 .orElseThrow(() -> new ResponseException(BadRequestError.EMAIL_NOT_FOUND));
-        this.macCache.put(StrUtils.joinKey(found.getId().toString()), MacAddressUtil.getMacAddress());
+        this.IPCache.put(StrUtils.joinKey(found.getId().toString()), IpAddressUtil.getClientIp(request));
     }
 
     public void logout(LogoutRequest logoutRequest) {
@@ -122,22 +123,23 @@ public class AuthService {
         return this.tokenProvider.refreshToken(account, refreshToken);
     }
 
-    private LoginResponse processLogin(AccountEntity account) throws JsonProcessingException {
+    private LoginResponse processLogin(AccountEntity account, HttpServletRequest request) throws JsonProcessingException {
         if (!AccountStatus.ACTIVE.equals(account.getStatus())) {
             throw new ResponseException(BadRequestError.ACCOUNT_NOT_ACTIVE);
         }
-        // MAC check
-        if (!this.macCache.hasKey(StrUtils.joinKey(account.getId().toString(), MacAddressUtil.getMacAddress()))) {
-            log.error(String.join(":", MacCache.MAC_KEY, account.getId().toString(), MacAddressUtil.getMacAddress()));
+        // IP check
+        String clientIP = IpAddressUtil.getClientIp(request);
+        if (!this.IPCache.hasKey(StrUtils.joinKey(account.getId().toString(), clientIP))) {
+            log.error(String.join(":", com.fasfood.iamservice.infrastructure.support.util.IPCache.IP_KEY, account.getId().toString(), clientIP));
             this.notificationClient.send(SendEmailRequest.builder()
                     .to(List.of(account.getEmail()))
                     .subject(EmailTitleReadModel.TWO_FA)
                     .templateCode("TP-M9WSYJP6K98")
                     .variables(Map.of("name", account.getFullName(),
-                            "address", Objects.requireNonNull(MacAddressUtil.getMacAddress()),
+                            "address", clientIP,
                             "resetLink", String.join("", this.RETURN_URL, "/actions/mac-verification?token=", this.tokenProvider.actionToken(account))))
                     .build()).getData();
-            throw new ResponseException(BadRequestError.INVALID_MAC_ADDRESS, MacAddressUtil.getMacAddress());
+            throw new ResponseException(BadRequestError.INVALID_IP_ADDRESS, clientIP);
         }
         return this.tokenProvider.login(account);
     }

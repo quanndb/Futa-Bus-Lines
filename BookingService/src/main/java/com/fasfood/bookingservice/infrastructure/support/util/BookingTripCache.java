@@ -2,8 +2,8 @@ package com.fasfood.bookingservice.infrastructure.support.util;
 
 import com.fasfood.bookingservice.application.dto.response.BookedResponse;
 import com.fasfood.common.dto.request.GetBookedRequest;
-import com.fasfood.web.support.Cacher;
-import com.fasfood.web.support.DataCacher;
+import com.fasfood.client.support.Cacher;
+import com.fasfood.client.support.DataCacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
