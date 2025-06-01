@@ -19,7 +19,7 @@ This repository contains the backend microservices for the **Futa Bus Lines - Bu
 
 - Java 21+
 - Spring Boot (Microservices)
-- Spring Cloud (Discovery, Config)
+- Spring Cloud (Discovery, API Gateway)
 - Spring Security
 - MapStruct (DTO mapping)
 - Docker & Docker Compose
@@ -40,7 +40,12 @@ This repository contains the backend microservices for the **Futa Bus Lines - Bu
 ### Running the Project
 
 1. **Clone the repository:**
+
    ```sh
    git clone https://github.com/quanndb/Futa-Bus-Lines.git
-   cd Futa-Bus-Lines/BackEnd
+   ```
+
+2. **Run the project:**
+   ```sh
+   docker compose up -d
    ```

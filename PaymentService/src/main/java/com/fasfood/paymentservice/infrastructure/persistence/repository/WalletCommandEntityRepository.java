@@ -5,6 +5,7 @@ import com.fasfood.persistence.custom.EntityRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,4 +21,8 @@ public interface WalletCommandEntityRepository extends EntityRepository<WalletCo
 
     @Query("SELECT a FROM WalletCommandEntity a WHERE a.code = :code AND a.deleted = false ORDER BY a.createdAt DESC LIMIT 1")
     Optional<WalletCommandEntity> findByCode(@Param("code") String code);
+
+    @Query("SELECT a FROM WalletCommandEntity a WHERE a.action = 'WITHDRAW' AND a.deleted = false " +
+            "AND a.status = 'SUCCESS' AND DATE(a.completedAt) BETWEEN :startDate AND :endDate ORDER BY a.completedAt DESC")
+    List<WalletCommandEntity> findAllWithdrawalByDate(LocalDate startDate, LocalDate endDate);
 }

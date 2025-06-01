@@ -16,7 +16,6 @@ import jakarta.persistence.Query;
 import org.springframework.util.CollectionUtils;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,12 +57,12 @@ public class TripEntityRepositoryImpl extends AbstractPagingEntityRepository<Tri
         params.put("departureId", filter.getDepartureId());
         params.put("destinationId", filter.getDestinationId());
         params.put("departureDate", filter.getDepartureDate());
-        params.put("now", Timestamp.from(Instant.now()));
+        params.put("now", new Timestamp(System.currentTimeMillis()));
         sql.append(" left join TripEntity t on td.tripId = t.id ");
         sql.append(" left join TripTransitEntity ttDep on ttDep.tripId = t.id");
         sql.append(" left join TripTransitEntity ttDes on ttDes.tripId = t.id");
         sql.append(" left join BusTypeEntity bt on td.type = bt.type ");
-        sql.append(" WHERE t.deleted = false AND td.deleted = false AND ttDep.deleted = false AND ttDes.deleted = false AND bt.deleted = false ");
+        sql.append(" WHERE t.deleted = false AND td.deleted = false AND td.status = 'ACTIVE' AND ttDep.deleted = false AND ttDes.deleted = false AND bt.deleted = false ");
         sql.append(" AND ttDep.transitPointId = :departureId ");
         sql.append(" AND ttDes.transitPointId = :destinationId ");
         sql.append(" AND :departureDate BETWEEN DATE(td.fromDate) AND DATE(td.toDate) ");

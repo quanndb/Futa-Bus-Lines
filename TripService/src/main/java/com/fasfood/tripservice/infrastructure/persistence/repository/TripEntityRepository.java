@@ -25,7 +25,7 @@ public interface TripEntityRepository extends EntityRepository<TripEntity, UUID>
     @Query("SELECT a FROM TripEntity a WHERE a.code IN :codes AND a.deleted = false")
     List<TripEntity> findAllByCode(Iterable<String> codes);
 
-    @Query("SELECT a FROM TripEntity a WHERE a.code = :code AND a.code != :except AND a.deleted = false")
+    @Query("SELECT a FROM TripEntity a WHERE a.code = :code AND (:except IS NULL OR a.code != :except) AND a.deleted = false")
     Optional<TripEntity> findByCodeExcept(String code, String except);
 
     @Modifying

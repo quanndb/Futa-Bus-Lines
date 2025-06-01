@@ -23,7 +23,7 @@ public interface TransitPointEntityRepository extends EntityRepository<TransitPo
     @Query("SELECT a FROM TransitPointEntity a WHERE a.name = :name AND a.deleted = false")
     Optional<TransitPointEntity> findByName(@Param("name") String name);
 
-    @Query("SELECT a FROM TransitPointEntity a WHERE a.name = :name AND a.name != :except AND a.deleted = false")
+    @Query("SELECT a FROM TransitPointEntity a WHERE a.name = :name AND (:except IS NULL OR a.name != :except) AND a.deleted = false")
     Optional<TransitPointEntity> findByNameExcept(@Param("name") String name, @Param("except") String except);
 
     @Modifying

@@ -19,7 +19,7 @@ public interface BusTypeEntityRepository extends JpaRepository<BusTypeEntity, UU
     @Query("SELECT a FROM BusTypeEntity a WHERE a.id = :id AND a.deleted = false")
     Optional<BusTypeEntity> findById(@Param("id") UUID id);
 
-    @Query("SELECT a FROM BusTypeEntity a WHERE a.type = :type AND a.type != :except AND a.deleted = false")
+    @Query("SELECT a FROM BusTypeEntity a WHERE a.type = :type AND (:except IS NULL OR a.type != :except) AND a.deleted = false")
     Optional<BusTypeEntity> findByCodeExcept(BusTypeEnum type, BusTypeEnum except);
 
     @Query("SELECT a FROM BusTypeEntity a WHERE a.type = :type AND a.deleted = false")

@@ -26,7 +26,8 @@ public interface RouteEntityRepository extends EntityRepository<RouteEntity, UUI
                                                           @Param("destinationId") UUID destinationId);
 
     @Query("SELECT a FROM RouteEntity a WHERE a.departureId = :departureId AND a.destinationId = :destinationId " +
-            "AND a.departureId != :exceptDepartureId AND a.destinationId != :exceptDestinationId " +
+            "AND (:exceptDepartureId IS NULL OR a.departureId != :exceptDepartureId) " +
+            "AND (:exceptDestinationId IS NULL OR a.destinationId != :exceptDestinationId) " +
             "AND a.deleted = false")
     Optional<RouteEntity> findByDepartureIdAndDepartureId(@Param("departureId") UUID departureId,
                                                           @Param("destinationId") UUID destinationId,

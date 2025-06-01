@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum NotFoundError implements ResponseError {
-    ACCOUNT_NOTFOUND(4040001, "Account not found"),
+    ACCOUNT_NOTFOUND(4040001, "Không tìm thấy tài khoản"),
     ROLE_NOTFOUND(4040002, "Role not found: {0}"),
     PERMISSION_NOTFOUND(4040003, "Permission not found: {0}"),
     ;

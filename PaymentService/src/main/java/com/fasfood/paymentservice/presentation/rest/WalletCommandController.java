@@ -5,6 +5,7 @@ import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.paymentservice.application.dto.request.DepositRequest;
+import com.fasfood.paymentservice.application.dto.request.TransactionPagingRequest;
 import com.fasfood.paymentservice.application.dto.request.WalletCommandPagingRequest;
 import com.fasfood.paymentservice.application.dto.request.WithDrawCreateOrUpdateRequest;
 import com.fasfood.paymentservice.application.dto.response.WalletCommandDTO;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -79,4 +81,9 @@ public interface WalletCommandController {
     @GetMapping("/wallet-commands/statistics")
     @PreAuthorize("hasPermission(null, 'wallets.read')")
     Response<StatisticResponse> getTransactionsStatistics(@ParameterObject WalletCommandPagingRequest request);
+
+    @Operation(summary = "Export withdrawal excel")
+    @GetMapping("/withdrawal/export")
+    @PreAuthorize("hasPermission(null, 'wallets.read')")
+    ResponseEntity<byte[]> getWithdrawalExcel(@ParameterObject WalletCommandPagingRequest request);
 }

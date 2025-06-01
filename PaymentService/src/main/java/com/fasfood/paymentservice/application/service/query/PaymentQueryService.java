@@ -30,4 +30,8 @@ public interface PaymentQueryService {
     StatisticResponse getStatistic(TransactionPagingRequest request);
 
     StatisticResponse getStatistic(WalletCommandPagingRequest request);
+
+    byte[] getTransactionsOutExcel(TransactionPagingRequest request);
+
+    byte[] getWithdrawalExcel(WalletCommandPagingRequest request);
 }

@@ -21,7 +21,7 @@ public interface TripDetailsEntityRepository extends JpaRepository<TripDetailsEn
     @Query("SELECT a FROM TripDetailsEntity a WHERE a.id = :id AND a.deleted = false")
     Optional<TripDetailsEntity> findById(@Param("id") UUID id);
 
-    @Query("SELECT a FROM TripDetailsEntity a WHERE a.tripId = :tripId AND a.deleted = false")
+    @Query("SELECT a FROM TripDetailsEntity a WHERE a.tripId = :tripId AND a.deleted = false ORDER BY a.fromDate ASC")
     List<TripDetailsEntity> findAllByTripId(@Param("tripId") UUID tripId);
 
     @Query("SELECT a FROM TripDetailsEntity a WHERE a.tripId = :ids AND a.deleted = false")

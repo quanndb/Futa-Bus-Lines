@@ -12,6 +12,10 @@ import com.fasfood.paymentservice.application.service.query.PaymentQueryService;
 import com.fasfood.paymentservice.presentation.rest.WebHookController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -30,6 +34,15 @@ public class WebHookControllerImpl implements WebHookController {
     @Override
     public Response<StatisticResponse> getTransactionsStatistics(TransactionPagingRequest request) {
         return PagingResponse.of(this.queryService.getStatistic(request));
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getTransactionsOutExcel(TransactionPagingRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "transaction-outs-"+request.getStartDate()+"-to-"+request.getEndDate()+".xlsx");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        return new ResponseEntity<>(this.queryService.getTransactionsOutExcel(request), headers, HttpStatus.OK);
     }
 
     @Override

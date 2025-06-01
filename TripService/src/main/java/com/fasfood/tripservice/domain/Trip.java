@@ -109,7 +109,7 @@ public class Trip extends Domain {
 
     private void checkTheSchedule(TripDetails needToCheck) {
         if (needToCheck.getFromDate().isAfter(needToCheck.getToDate())) {
-            throw new ResponseException(BadRequestError.FROM_MUST_BEFORE_TO, needToCheck.getFromDate() + " - " + needToCheck.getToDate());
+            throw new ResponseException(BadRequestError.FROM_MUST_BEFORE_TO, needToCheck.getFromDate() + " Đến " + needToCheck.getToDate());
         }
         if (!CollectionUtils.isEmpty(this.tripDetails) && TripStatus.ACTIVE.equals(needToCheck.getStatus())) {
             for (TripDetails details : this.tripDetails) {
@@ -121,11 +121,9 @@ public class Trip extends Domain {
     }
 
     private void checkBetween(LocalDate from, LocalDate to, LocalDate fromCheck, LocalDate toCheck) {
-        boolean isBetween = ((fromCheck.equals(from) || fromCheck.isAfter(from)) && (fromCheck.equals(to) || fromCheck.isBefore(to)))
-                ||
-                ((toCheck.equals(from) || toCheck.isAfter(from)) && (toCheck.equals(to) || toCheck.isBefore(to)));
-        if (isBetween) {
-            throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, from + "-" + to);
+        boolean isOverlapping = !toCheck.isBefore(from) && !fromCheck.isAfter(to);
+        if (isOverlapping) {
+            throw new ResponseException(BadRequestError.SCHEDULE_ALREADY_EXISTED, from + " Đến " + to);
         }
     }
 

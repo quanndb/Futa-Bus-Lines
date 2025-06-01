@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -154,7 +155,6 @@ public class CellConverter {
                     return null;
                 }
             }
-
             return null;
         };
     }
@@ -178,6 +178,27 @@ public class CellConverter {
                 }
             }
 
+            return null;
+        };
+    }
+
+    public static Function<Cell, LocalDateTime> localDateTimeConverter() {
+        return cell -> {
+            if (cell == null) return null;
+
+            if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+                Date date = cell.getDateCellValue();
+                return date.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+            } else if (cell.getCellType() == CellType.STRING) {
+                try {
+                    return LocalDateTime.parse(cell.getStringCellValue().trim());
+                } catch (DateTimeParseException e) {
+                    // Optionally handle or log the error
+                    return null;
+                }
+            }
             return null;
         };
     }

@@ -17,7 +17,7 @@ public enum BadRequestError implements ResponseError {
     PHONE_NUMBER_NOT_VALID(4000010, "Phone number is not valid"),
     SEATS_REQUIRED(4000011, "Seats is required"),
     UNABLE_TO_CHANGE_BOOKING_STATUS(4000012, "Unable to change booking status"),
-    UNABLE_TO_RETURN_TICKET(4000013, "Unable to return ticket before 24h"),
+    UNABLE_TO_RETURN_TICKET(4000013, "Không thể trả vé trước 24h khởi hành"),
     UNABLE_TO_UPDATE_WHILE_RUNNING(4000014, "Unable to update when running"),
     INVALID_SEATS(4000015, "Invalid seats: {0}"),
     YOU_ARE_NOT_OWNER_OF_THIS(4000016, "Bạn không phải chủ sở hữu vé này"),

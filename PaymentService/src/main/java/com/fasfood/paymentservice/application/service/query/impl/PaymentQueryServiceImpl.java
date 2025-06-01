@@ -24,6 +24,7 @@ import com.fasfood.paymentservice.infrastructure.persistence.repository.Transact
 import com.fasfood.paymentservice.infrastructure.persistence.repository.WalletCommandEntityRepository;
 import com.fasfood.paymentservice.infrastructure.persistence.repository.WalletHistoryEntityRepository;
 import com.fasfood.paymentservice.infrastructure.support.exception.NotFoundError;
+import com.fasfood.paymentservice.infrastructure.support.util.ExcelExtractor;
 import com.fasfood.paymentservice.infrastructure.support.util.PaymentLinkCreator;
 import com.fasfood.web.support.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -100,6 +101,22 @@ public class PaymentQueryServiceImpl implements PaymentQueryService {
         var res = this.walletCommandEntityRepository.statistics(this.queryMapper.from(request));
         if (!CollectionUtils.isEmpty(res)) return res.getFirst();
         return new StatisticResponse("total", 0L);
+    }
+
+    @Override
+    public byte[] getTransactionsOutExcel(TransactionPagingRequest request) {
+        List<TransactionDTO> transactionDTOS = this.transactionDTOMapper
+                .entityToDTO(this.transactionEntityRepository
+                        .findTransactionOutByDate(request.getStartDate(), request.getEndDate()));
+        return ExcelExtractor.extractTransactionOut().exportToBytes("Transaction outs", transactionDTOS);
+    }
+
+    @Override
+    public byte[] getWithdrawalExcel(WalletCommandPagingRequest request) {
+        List<WalletCommandDTO> walletCommandDTOS = this.walletCommandDTOMapper
+                .entityToDTO(this.walletCommandEntityRepository
+                        .findAllWithdrawalByDate(request.getStartDate(), request.getEndDate()));
+        return ExcelExtractor.extractWithdrawal().exportToBytes("Withdrawals", walletCommandDTOS);
     }
 
     private PageDTO<WalletHistoryDTO> getWalletHistories(WalletHistoryPagingQuery query) {

@@ -1,10 +1,10 @@
 package com.fasfood.paymentservice.presentation.rest.impl;
 
+import com.fasfood.common.dto.request.PayRequest;
 import com.fasfood.common.dto.response.PagingResponse;
 import com.fasfood.common.dto.response.Response;
 import com.fasfood.common.dto.response.StatisticResponse;
 import com.fasfood.paymentservice.application.dto.request.DepositRequest;
-import com.fasfood.common.dto.request.PayRequest;
 import com.fasfood.paymentservice.application.dto.request.WalletCommandPagingRequest;
 import com.fasfood.paymentservice.application.dto.request.WithDrawCreateOrUpdateRequest;
 import com.fasfood.paymentservice.application.dto.response.WalletCommandDTO;
@@ -14,6 +14,10 @@ import com.fasfood.paymentservice.infrastructure.support.enums.WalletCommandStat
 import com.fasfood.paymentservice.presentation.rest.WalletCommandController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -80,5 +84,14 @@ public class WalletCommandControllerImpl implements WalletCommandController {
     @Override
     public Response<StatisticResponse> getTransactionsStatistics(WalletCommandPagingRequest request) {
         return Response.of(this.queryService.getStatistic(request));
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getWithdrawalExcel(WalletCommandPagingRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "withdrawals-"+request.getStartDate()+"-to-"+request.getEndDate()+".xlsx");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        return new ResponseEntity<>(this.queryService.getWithdrawalExcel(request), headers, HttpStatus.OK);
     }
 }
